@@ -1,0 +1,25 @@
+<Window x:Class="RcloneQBController.Views.SetupWizardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RcloneQBController.Views"
+        mc:Ignorable="d"
+        Title="First-Time Setup" Height="500" Width="700"
+        WindowStartupLocation="CenterScreen"
+        Background="#2D2D30">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ContentControl Grid.Row="0" Content="{Binding CurrentStepViewModel}" Margin="15"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="15">
+            <Button Content="Back" Command="{Binding BackCommand}" Width="100" Margin="5" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
+            <Button Content="Next" Command="{Binding NextCommand}" Width="100" Margin="5" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0"/>
+            <Button Content="Finish" Command="{Binding FinishCommand}" Width="100" Margin="5" Background="#388E3C" Foreground="#F1F1F1" BorderThickness="0"/>
+        </StackPanel>
+    </Grid>
+</Window>

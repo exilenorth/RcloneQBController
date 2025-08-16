@@ -1,0 +1,33 @@
+<UserControl x:Class="RcloneQBController.Views.OpenVPNView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RcloneQBController.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid Background="#2D2D30">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
+            <TextBlock Text="OpenVPN Setup" Foreground="#F1F1F1" FontSize="16" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+            <TextBlock Text="This wizard will help you configure the qB Cleanup script, which requires an OpenVPN connection." TextWrapping="Wrap" Foreground="#F1F1F1" Margin="0,5"/>
+            <TextBlock Text="Do you have the OpenVPN client installed?" Foreground="#F1F1F1" Margin="0,15,0,5"/>
+            <RadioButton Content="Yes, it's installed" GroupName="VpnStatus" IsChecked="True" Foreground="#F1F1F1" Margin="0,5"/>
+            <RadioButton Content="No, help me download it" GroupName="VpnStatus" Foreground="#F1F1F1" Margin="0,5"/>
+            <TextBlock Margin="0,10,0,0">
+                <Hyperlink NavigateUri="https://openvpn.net/community-downloads/" RequestNavigate="Hyperlink_RequestNavigate">
+                    <TextBlock Text="Go to OpenVPN download page" Foreground="#007ACC"/>
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock Text="Please select your .ovpn configuration file:" Foreground="#F1F1F1" Margin="0,15,0,5"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Text="{Binding OvpnFilePath}" IsReadOnly="True" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
+                <Button Grid.Column="1" Content="Browse..." Command="{Binding BrowseCommand}" Width="80" Margin="5,0,0,0" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0"/>
+            </Grid>
+            <Button Content="Test VPN Connection" Command="{Binding TestVpnCommand}" Width="150" Margin="0,15,0,0" HorizontalAlignment="Center" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
