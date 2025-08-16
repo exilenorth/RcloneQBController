@@ -1,10 +1,24 @@
-# Python #
-__pycache__/
-*.pyc
-*~
+# C#
+[Bb]in/
+[Oo]bj/
 
-# VS Code #
-.vscode/
+# Visual Studio
+.vs/
+*.suo
+*.user
+
+# Rider
+.idea/
+
+# Mac
+.DS_Store
+
+# Nuget
+packages/
+*.nupkg
+
+# User-specific files
+*.DotSettings.user
 
 # script templates #
 scripts/qb_cleanup_ratio.ps1
