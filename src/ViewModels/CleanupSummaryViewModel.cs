@@ -8,7 +8,7 @@ namespace RcloneQBController.ViewModels
 {
     public class CleanupSummaryViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<KeyValuePair<string, string>> ConfigurationSummary { get; set; }
+        public ObservableCollection<KeyValuePair<string, string>>? ConfigurationSummary { get; set; }
         public ICommand FinalTestCommand { get; }
 
         public CleanupSummaryViewModel()
@@ -19,7 +19,7 @@ namespace RcloneQBController.ViewModels
 
         public void UpdateSummary(object vpnConfig, object qbConfig)
         {
-            ConfigurationSummary.Clear();
+            ConfigurationSummary?.Clear();
             // Populate summary from config objects
         }
 
@@ -28,9 +28,9 @@ namespace RcloneQBController.ViewModels
             // Logic to run rclone ls and qB API test
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

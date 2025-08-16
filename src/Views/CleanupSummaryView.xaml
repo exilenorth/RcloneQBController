@@ -8,7 +8,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Background="#2D2D30">
         <StackPanel Margin="15">
-            <TextBlock Text="Final Summary & Test" Foreground="#F1F1F1" FontSize="16" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+            <TextBlock Text="Final Summary &amp; Test" Foreground="#F1F1F1" FontSize="16" Margin="0,0,0,10" HorizontalAlignment="Center"/>
             <TextBlock Text="Please review all your settings before finishing the setup." TextWrapping="Wrap" Foreground="#F1F1F1" Margin="0,0,0,10"/>
             <DataGrid ItemsSource="{Binding ConfigurationSummary}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Background="#3E3E42" Foreground="#F1F1F1" BorderBrush="#3E3E42">
                 <DataGrid.Columns>

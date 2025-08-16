@@ -17,6 +17,7 @@ namespace RcloneQBController
             if (!File.Exists(configPath))
             {
                 var wizard = new SetupWizardWindow();
+                wizard.DataContext = new RcloneQBController.ViewModels.SetupWizardViewModel();
                 wizard.ShowDialog();
             }
 

@@ -14,7 +14,7 @@ namespace RcloneQBController.Services
 
         private ConfigurationService() { }
 
-        public AppConfig LoadConfig()
+        public AppConfig? LoadConfig()
         {
             if (!File.Exists(ConfigFileName))
             {
@@ -23,7 +23,10 @@ namespace RcloneQBController.Services
 
             var json = File.ReadAllText(ConfigFileName);
             var config = JsonSerializer.Deserialize<AppConfig>(json);
-            PurgeOldLogs(config);
+            if (config != null)
+            {
+                PurgeOldLogs(config);
+            }
             return config;
         }
 
@@ -37,24 +40,30 @@ namespace RcloneQBController.Services
         public void ValidateConfiguration(AppConfig config)
         {
             // Path Validation
-            if (!File.Exists(config.Rclone.RclonePath)) throw new FileNotFoundException("rclone.exe not found.", config.Rclone.RclonePath);
-            if (!Directory.Exists(config.Rclone.LogDir)) Directory.CreateDirectory(config.Rclone.LogDir);
-            foreach (var job in config.Rclone.Jobs)
+            if (config.Rclone?.RclonePath == null || !File.Exists(config.Rclone.RclonePath)) throw new FileNotFoundException("rclone.exe not found.", config.Rclone?.RclonePath);
+            if (config.Rclone?.LogDir != null && !Directory.Exists(config.Rclone.LogDir)) Directory.CreateDirectory(config.Rclone.LogDir);
+            if (config.Rclone?.Jobs != null)
             {
-                if (!Directory.Exists(job.DestPath)) throw new DirectoryNotFoundException($"Destination path for job '{job.Name}' not found.");
+                foreach (var job in config.Rclone.Jobs)
+                {
+                    if (job.DestPath != null && !Directory.Exists(job.DestPath)) throw new DirectoryNotFoundException($"Destination path for job '{job.Name}' not found.");
+                }
             }
-            if (!File.Exists(config.Vpn.ConfigFile)) throw new FileNotFoundException("VPN config file not found.", config.Vpn.ConfigFile);
+            if (config.Vpn?.ConfigFile == null || !File.Exists(config.Vpn.ConfigFile)) throw new FileNotFoundException("VPN config file not found.", config.Vpn?.ConfigFile);
 
             // Network Validation
-            if (config.QBittorrent.Port < 1 || config.QBittorrent.Port > 65535) throw new ArgumentOutOfRangeException("Invalid qBittorrent port.");
+            if (config.QBittorrent != null && (config.QBittorrent.Port < 1 || config.QBittorrent.Port > 65535)) throw new ArgumentOutOfRangeException("Invalid qBittorrent port.");
 
             // Value Validation
-            if (config.Cleanup.TargetRatio < 0) throw new ArgumentOutOfRangeException("Target ratio must be non-negative.");
-            if (config.Schedule.PullEveryMinutes <= 0) throw new ArgumentOutOfRangeException("Pull interval must be positive.");
-            if (config.AppSettings.LogRetentionDays <= 0) throw new ArgumentOutOfRangeException("Log retention days must be positive.");
-            foreach (var job in config.Rclone.Jobs)
+            if (config.Cleanup != null && config.Cleanup.TargetRatio < 0) throw new ArgumentOutOfRangeException("Target ratio must be non-negative.");
+            if (config.Schedule != null && config.Schedule.PullEveryMinutes <= 0) throw new ArgumentOutOfRangeException("Pull interval must be positive.");
+            if (config.AppSettings != null && config.AppSettings.LogRetentionDays <= 0) throw new ArgumentOutOfRangeException("Log retention days must be positive.");
+            if (config.Rclone?.Jobs != null)
             {
-                if (job.MaxRuntimeMinutes <= 0) throw new ArgumentOutOfRangeException($"Max runtime for job '{job.Name}' must be positive.");
+                foreach (var job in config.Rclone.Jobs)
+                {
+                    if (job.MaxRuntimeMinutes <= 0) throw new ArgumentOutOfRangeException($"Max runtime for job '{job.Name}' must be positive.");
+                }
             }
         }
 

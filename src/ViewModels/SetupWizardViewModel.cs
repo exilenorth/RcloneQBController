@@ -7,13 +7,13 @@ namespace RcloneQBController.ViewModels
 {
     public class SetupWizardViewModel : INotifyPropertyChanged
     {
-        private object _currentStepViewModel;
-        private List<object> _steps;
+        private object? _currentStepViewModel;
+        private List<object>? _steps;
         private int _currentStepIndex;
 
         public object CurrentStepViewModel
         {
-            get => _currentStepViewModel;
+            get => _currentStepViewModel!;
             set
             {
                 _currentStepViewModel = value;
@@ -51,18 +51,18 @@ namespace RcloneQBController.ViewModels
             if (CanGoToNextStep(parameter))
             {
                 _currentStepIndex++;
-                CurrentStepViewModel = _steps[_currentStepIndex];
+                if (_steps != null) CurrentStepViewModel = _steps[_currentStepIndex];
             }
         }
 
-        private bool CanGoToNextStep(object parameter) => _currentStepIndex < _steps.Count - 1;
+        private bool CanGoToNextStep(object parameter) => _steps != null && _currentStepIndex < _steps.Count - 1;
 
         private void GoToPreviousStep(object parameter)
         {
             if (CanGoToPreviousStep(parameter))
             {
                 _currentStepIndex--;
-                CurrentStepViewModel = _steps[_currentStepIndex];
+                if (_steps != null) CurrentStepViewModel = _steps[_currentStepIndex];
             }
         }
 
@@ -73,9 +73,9 @@ namespace RcloneQBController.ViewModels
             // Logic to save configuration and close the wizard
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

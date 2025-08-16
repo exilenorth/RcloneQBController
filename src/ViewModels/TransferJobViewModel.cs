@@ -8,7 +8,7 @@ namespace RcloneQBController.ViewModels
 {
     public class TransferJobViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<RcloneJobConfig> Jobs { get; set; }
+        public ObservableCollection<RcloneJobConfig>? Jobs { get; set; }
         public ICommand AddJobCommand { get; }
         public ICommand EditJobCommand { get; }
         public ICommand RemoveJobCommand { get; }
@@ -43,15 +43,15 @@ namespace RcloneQBController.ViewModels
         {
             if (parameter is RcloneJobConfig job)
             {
-                Jobs.Remove(job);
+                Jobs?.Remove(job);
             }
         }
 
         private bool CanEditOrRemoveJob(object parameter) => parameter is RcloneJobConfig;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

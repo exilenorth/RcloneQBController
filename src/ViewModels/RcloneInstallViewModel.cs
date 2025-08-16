@@ -8,7 +8,7 @@ namespace RcloneQBController.ViewModels
     public class RcloneInstallViewModel : INotifyPropertyChanged
     {
         private bool _isRcloneInstalled;
-        private string _rclonePath;
+        private string? _rclonePath;
 
         public bool IsRcloneInstalled
         {
@@ -20,7 +20,7 @@ namespace RcloneQBController.ViewModels
             }
         }
 
-        public string RclonePath
+        public string? RclonePath
         {
             get => _rclonePath;
             set
@@ -41,7 +41,12 @@ namespace RcloneQBController.ViewModels
             // 1. Check config.json (not applicable in wizard)
             // 2. Search PATH
             var pathVar = Environment.GetEnvironmentVariable("PATH");
-            var paths = pathVar.Split(';');
+            var paths = pathVar?.Split(';');
+            if (paths == null)
+            {
+                IsRcloneInstalled = false;
+                return;
+            }
             foreach (var path in paths)
             {
                 var rclonePath = Path.Combine(path, "rclone.exe");
@@ -55,9 +60,9 @@ namespace RcloneQBController.ViewModels
             IsRcloneInstalled = false;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

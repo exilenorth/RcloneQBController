@@ -8,9 +8,9 @@ namespace RcloneQBController.ViewModels
 {
     public class OpenVPNViewModel : INotifyPropertyChanged
     {
-        private string _ovpnFilePath;
+        private string? _ovpnFilePath;
 
-        public string OvpnFilePath
+        public string? OvpnFilePath
         {
             get => _ovpnFilePath;
             set { _ovpnFilePath = value; OnPropertyChanged(); }
@@ -45,9 +45,9 @@ namespace RcloneQBController.ViewModels
 
         private bool CanTestVpnConnection(object parameter) => !string.IsNullOrEmpty(OvpnFilePath) && File.Exists(OvpnFilePath);
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

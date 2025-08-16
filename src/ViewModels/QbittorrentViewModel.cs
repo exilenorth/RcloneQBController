@@ -7,11 +7,11 @@ namespace RcloneQBController.ViewModels
 {
     public class QbittorrentViewModel : INotifyPropertyChanged
     {
-        private string _host;
+        private string? _host;
         private int _port = 8080;
-        private string _username;
+        private string? _username;
 
-        public string Host
+        public string? Host
         {
             get => _host;
             set { _host = value; OnPropertyChanged(); }
@@ -23,7 +23,7 @@ namespace RcloneQBController.ViewModels
             set { _port = value; OnPropertyChanged(); }
         }
 
-        public string Username
+        public string? Username
         {
             get => _username;
             set { _username = value; OnPropertyChanged(); }
@@ -52,9 +52,9 @@ namespace RcloneQBController.ViewModels
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
