@@ -1,0 +1,13 @@
+{
+  "QbUrl": "http://10.8.0.1:9148",
+  "QbUser": "seedit4me",
+  "QbPass": "D23fab23!@12",
+  "Categories": [
+    "tv",
+    "movies"
+  ],
+  "TargetRatio": 2.0,
+  "HnRMinutes": 14400,
+  "MinAgeMins": 30,
+  "LogDir": "D:\\rclone_logs\\qB_cleanup"
+}

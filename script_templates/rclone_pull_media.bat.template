@@ -1,0 +1,93 @@
+@echo off
+setlocal enabledelayedexpansion
+
+:: ============================================================================
+:: Configuration
+:: ============================================================================
+set "RCLONE_EXE=%%RCLONE_EXE_PATH%%"
+set "SOURCE_REMOTE=%%SOURCE_REMOTE%%"
+set "DEST_PATH=%%DEST_PATH%%"
+set "LOG_DIR=%%LOG_DIR%%"
+set "FILTER_FILE=%%FILTER_FILE%%"
+set "LOCK_FILE=%LOG_DIR%\rclone_pull.lock"
+set "LOG_LEVEL=%%LOG_LEVEL%%"
+set "MIN_AGE=%%MIN_AGE%%"
+set "TRANSFERS=%%TRANSFERS%%"
+set "CHECKERS=%%CHECKERS%%"
+
+:: ============================================================================
+:: Pre-flight Checks
+:: ============================================================================
+echo Checking configuration...
+
+:: Check if rclone.exe exists
+if not exist "%RCLONE_EXE%" (
+    echo ERROR: rclone.exe not found at "%RCLONE_EXE%". Please check the path.
+    exit /b 1
+)
+
+:: Check if destination directory exists
+if not exist "%DEST_PATH%" (
+    echo WARNING: Destination directory "%DEST_PATH%" not found.
+    echo Attempting to create it...
+    mkdir "%DEST_PATH%"
+    if !errorlevel! neq 0 (
+        echo ERROR: Failed to create destination directory.
+        exit /b 1
+    )
+    echo Destination directory created successfully.
+)
+
+:: Create log directory if it doesn't exist
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
+
+:: ============================================================================
+:: Locking Mechanism
+:: ============================================================================
+if exist "%LOCK_FILE%" (
+    echo ERROR: Script is already running. Lock file found: "%LOCK_FILE%".
+    echo If you are sure no other instance is running, delete the lock file and try again.
+    exit /b 1
+)
+echo Creating lock file...
+echo Running > "%LOCK_FILE%"
+
+:: ============================================================================
+:: Main Operation
+:: ============================================================================
+for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /format:list') do set "datetime=%%I"
+set "TIMESTAMP=!datetime:~0,8!_!datetime:~8,6!"
+set "LOG_FILE=%LOG_DIR%\rclone_pull_%TIMESTAMP%.log"
+
+echo Starting rclone media pull at %TIMESTAMP%
+echo Log file: %LOG_FILE%
+echo.
+
+"%RCLONE_EXE%" copy "%SOURCE_REMOTE%" "%DEST_PATH%" ^
+    --filter-from "%FILTER_FILE%" ^
+    --update ^
+    --min-age=%MIN_AGE% ^
+    --transfers=%TRANSFERS% ^
+    --checkers=%CHECKERS% ^
+    --log-file="%LOG_FILE%" ^
+    --log-level=%LOG_LEVEL% ^
+    --use-json-log %*
+
+set "RCLONE_EXIT_CODE=%errorlevel%"
+
+:: ============================================================================
+:: Error Handling & Cleanup
+:: ============================================================================
+echo.
+if %RCLONE_EXIT_CODE% equ 0 (
+    echo Rclone operation completed successfully.
+) else (
+    echo ERROR: Rclone operation failed with exit code %RCLONE_EXIT_CODE%.
+    echo Check the log file for details: "%LOG_FILE%"
+)
+
+echo Removing lock file...
+del "%LOCK_FILE%"
+
+echo.
+echo Script finished.

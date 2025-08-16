@@ -1,0 +1,247 @@
+# ===================== qB Cleanup Script (v3) =====================
+# Deletes torrents based on rules defined in an external config file.
+#
+# Features:
+# - External JSON configuration (config.json)
+# - Dry-run mode via -DryRun switch to simulate without deleting.
+# - Robust error handling for all API interactions.
+# - Refactored into logical functions for readability and maintenance.
+# - Detailed logging to console and file.
+# ====================================================================
+
+param (
+    [switch]$DryRun
+)
+
+# ===================== Function Definitions =====================
+
+function Log([string]$msg) {
+    # This function requires $script:LogFile to be set before it's called.
+    $line = "[{0}] {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $msg
+    $line | Out-File -FilePath $script:LogFile -Append -Encoding utf8
+    Write-Host $line
+}
+
+function New-qBSession {
+    param(
+        [Parameter(Mandatory=$true)]
+        [PSCustomObject]$Config
+    )
+    try {
+        Log "Attempting to log into qBittorrent at $($Config.QbUrl)..."
+        $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+        $body = @{
+            username = $Config.QbUser
+            password = $Config.QbPass
+        }
+        $r = Invoke-WebRequest -Method POST -Uri "$($Config.QbUrl)/api/v2/auth/login" -WebSession $session `
+            -Headers @{ Referer = $Config.QbUrl } -Body $body -ErrorAction Stop
+        
+        if ($r.StatusCode -ne 200 -or $r.Content -notmatch "Ok") {
+            throw "Login failed. Status: $($r.StatusCode). Response: $($r.Content)"
+        }
+        Log "Successfully logged into qBittorrent."
+        return $session
+    } catch {
+        throw "Failed to establish qB session. Error: $($_.Exception.Message). Please check URL and credentials in config.json."
+    }
+}
+
+function Get-qBTorrents {
+    param(
+        [Parameter(Mandatory=$true)]
+        [PSCustomObject]$Config,
+        [Parameter(Mandatory=$true)]
+        $Session
+    )
+    try {
+        $uri = "$($Config.QbUrl)/api/v2/torrents/info"
+        return Invoke-RestMethod -Method GET -Uri $uri -WebSession $Session -ErrorAction Stop
+    } catch {
+        throw "Failed to fetch torrents from API. Error: $($_.Exception.Message). Check if qBittorrent is reachable."
+    }
+}
+
+function Get-EligibleTorrents {
+    param(
+        [Parameter(Mandatory=$true)]
+        [array]$Torrents,
+        [Parameter(Mandatory=$true)]
+        [int]$Now,
+        [Parameter(Mandatory=$true)]
+        [int]$MinAgeSec,
+        [Parameter(Mandatory=$true)]
+        [array]$SafeStates,
+        [Parameter(Mandatory=$true)]
+        [double]$TargetRatio,
+        [Parameter(Mandatory=$true)]
+        [int]$HnrSec
+    )
+    $eligible = @()
+    foreach ($t in $Torrents) {
+        $finished = ($t.completion_on -gt 0) -and (($Now - $t.completion_on) -ge $MinAgeSec)
+        $state = $t.state -as [string]
+        
+        $safeState = $state -in $SafeStates
+        $ratioOK = [double]$t.ratio -ge $TargetRatio
+        $timeOK = [int]$t.seeding_time -ge $HnrSec
+        $isBroken = ($state -match 'error|missing')
+
+        if ($finished -and $safeState -and ($ratioOK -or $timeOK -or $isBroken)) {
+            $eligible += $t
+        }
+    }
+    return $eligible
+}
+
+function Remove-qBTorrents {
+    param(
+        [Parameter(Mandatory=$true)]
+        [PSCustomObject]$Config,
+        [Parameter(Mandatory=$true)]
+        $Session,
+        [Parameter(Mandatory=$true)]
+        [array]$Torrents,
+        [Parameter(Mandatory=$false)]
+        [switch]$DryRun
+    )
+    
+    if ($DryRun.IsPresent) {
+        Log "[DryRun] Would delete $($Torrents.Count) torrent(s). No action will be taken."
+        return
+    }
+
+    try {
+        $hashes = ($Torrents.hash -join '|')
+        $body = @{
+            hashes = $hashes
+            deleteFiles = 'true'
+        }
+        $deleteResult = Invoke-WebRequest -Method POST -Uri "$($Config.QbUrl)/api/v2/torrents/delete" `
+            -WebSession $Session -Body $body -ErrorAction Stop
+
+        if ($deleteResult.StatusCode -ne 200) {
+            throw "API returned non-200 status: $($deleteResult.StatusCode)"
+        }
+        Log ("Deletion request for {0} torrent(s) sent successfully." -f $Torrents.Count)
+    } catch {
+        throw "Batch deletion API call failed. Error: $($_.Exception.Message)"
+    }
+}
+
+# --- Main Execution ---
+try {
+    # --- Load Configuration ---
+    $PSScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
+    $ConfigFile = Join-Path $PSScriptRoot "config.json"
+
+    if (-not (Test-Path $ConfigFile)) {
+        throw "Configuration file not found at '$ConfigFile'. Please create it."
+    }
+    # Use -ErrorAction Stop to ensure failure jumps to the catch block
+    $Config = Get-Content -Raw -Path $ConfigFile -ErrorAction Stop | ConvertFrom-Json
+    
+    # --- Initialize Logging ---
+    $RunDate = Get-Date -Format "yyyy-MM-dd"
+    $LogDir = $Config.LogDir
+    if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Force -Path $LogDir | Out-Null }
+    
+    # Set the script-scoped variable for the Log function
+    $script:LogFile = Join-Path $LogDir ("qb_cleanup_{0}.log" -f $RunDate)
+    $DeleteCsv = Join-Path $LogDir ("qb_cleanup_deleted_{0}.csv" -f $RunDate)
+
+    # --- Script Parameters ---
+    $hnrSec = [int]$Config.HnRMinutes * 60
+    $minAgeSec = [int]$Config.MinAgeMins * 60
+    $now = [int][double]::Parse((Get-Date -UFormat %s))
+    $SafeStates = @('pausedUP', 'pausedDL', 'stalledUP', 'error', 'missingFiles')
+
+    # --- Begin Processing ---
+    if ($DryRun) {
+        Log "--- Starting qB Cleanup run in DRY-RUN mode ---"
+    } else {
+        Log "--- Starting qB Cleanup run ---"
+    }
+
+    # 1. Connect and get a session
+    $session = New-qBSession -Config $Config
+    
+    # 2. Get all torrents and filter them
+    $allTorrents = Get-qBTorrents -Config $Config -Session $session
+    if ($null -eq $allTorrents) { $allTorrents = @() } # Ensure it's an array
+    $targetTorrents = $allTorrents | Where-Object { $_.category -in $Config.Categories }
+    Log ("Found {0} torrents in specified categories." -f $targetTorrents.Count)
+
+    if ($targetTorrents.Count -eq 0) {
+        Log "No torrents found matching the specified categories. Exiting."
+        exit 0
+    }
+
+    # 3. Identify eligible torrents for deletion
+    $eligibleTorrents = Get-EligibleTorrents -Torrents $targetTorrents -Now $now -MinAgeSec $minAgeSec -SafeStates $SafeStates -TargetRatio $Config.TargetRatio -HnrSec $hnrSec
+    
+    if ($eligibleTorrents.Count -eq 0) {
+        Log "Nothing to clean."
+        exit 0
+    }
+
+    Log ("Found {0} torrents eligible for deletion." -f $eligibleTorrents.Count)
+    foreach ($t in $eligibleTorrents) {
+        Log ("  - $($t.name) (Ratio: $($t.ratio), Seed Time: $([int]($t.seeding_time / 60)) mins)")
+    }
+
+    # 4. Log pending deletions and attempt removal
+    $deletionLog = @()
+    foreach ($t in $eligibleTorrents) {
+        $logEntry = [PSCustomObject]@{
+            Timestamp    = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+            Name         = $t.name
+            Category     = $t.category
+            StateBefore  = $t.state
+            Ratio        = $t.ratio
+            SeedMins     = [int]($t.seeding_time / 60)
+            AgeMins      = [int](($now - $t.completion_on) / 60)
+            SizeBytes    = $t.size
+            Hash         = $t.hash
+            Status       = if ($DryRun.IsPresent) { 'dryrun_skipped' } else { 'pending_deletion' }
+        }
+        $deletionLog += $logEntry
+    }
+    $deletionLog | Export-Csv -Path $DeleteCsv -NoTypeInformation
+
+    # 5. Delete the torrents (or simulate if DryRun)
+    Remove-qBTorrents -Config $Config -Session $session -Torrents $eligibleTorrents -DryRun:$DryRun
+
+    # 6. Verify deletion and update log if not a dry run
+    if (-not $DryRun.IsPresent) {
+        Log "Verifying deletions..."
+        # Allow a moment for qB to process the deletions
+        Start-Sleep -Seconds 5
+        $torrentsAfterDelete = Get-qBTorrents -Config $Config -Session $session
+        if ($null -eq $torrentsAfterDelete) { $torrentsAfterDelete = @() } # Ensure it's an array
+        $hashesAfterDelete = $torrentsAfterDelete | Select-Object -ExpandProperty hash
+
+        foreach ($logEntry in $deletionLog) {
+            if ($logEntry.Hash -in $hashesAfterDelete) {
+                $logEntry.Status = 'delete_failed'
+                Log "ERROR: Failed to delete torrent '$($logEntry.Name)'."
+            } else {
+                $logEntry.Status = 'deleted_verified'
+            }
+        }
+        
+        # Overwrite the CSV with the final, updated status
+        $deletionLog | Export-Csv -Path $DeleteCsv -NoTypeInformation
+        
+        $deletedCount = ($deletionLog | Where-Object { $_.Status -eq 'deleted_verified' }).Count
+        Log "Verified {0} deletions. See '$DeleteCsv' for details." -f $deletedCount
+    }
+
+    Log "--- Run finished. ---"
+
+} catch {
+    # Use Write-Error for the final catch, as the Log function may not be available
+    # if config loading or log initialization fails.
+    Write-Error ("FATAL: " + $_.Exception.Message)
+    exit 1
+}

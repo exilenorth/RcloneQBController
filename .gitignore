@@ -1,0 +1,12 @@
+# Python #
+__pycache__/
+*.pyc
+*~
+
+# VS Code #
+.vscode/
+
+# script templates #
+scripts/qb_cleanup_ratio.ps1
+scripts/rclone_pull_media.bat
+scripts/seedit4me-user1.ovpn
