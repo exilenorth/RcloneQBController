@@ -3,10 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:RcloneQBController.Views"
+        xmlns:views="clr-namespace:RcloneQBController.Views"
         mc:Ignorable="d"
-        Title="Rclone QB Controller" Height="450" Width="800">
+        Title="Rclone QB Controller" Height="600" Width="1000">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
+        <!-- Left Column: Script Controls -->
+        <views:ScriptControlView Grid.Column="0" />
+
+        <!-- Right Column: Activity Dashboard -->
+        <views:ActivityDashboardView Grid.Column="1" />
     </Grid>
 </Window>

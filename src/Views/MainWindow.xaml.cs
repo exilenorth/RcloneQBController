@@ -10,6 +10,7 @@ namespace RcloneQBController.Views
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new RcloneQBController.ViewModels.MainViewModel();
         }
     }
 }

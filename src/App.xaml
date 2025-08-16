@@ -2,11 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:RcloneQBController"
+             StartupUri="Views/MainWindow.xaml"
              xmlns:viewModels="clr-namespace:RcloneQBController.ViewModels"
              xmlns:views="clr-namespace:RcloneQBController.Views">
-    <Application.Resources>
-        <DataTemplate DataType="{x:Type viewModels:RcloneInstallViewModel}">
-            <views:RcloneInstallView/>
+   <Application.Resources>
+       <DataTemplate DataType="{x:Type viewModels:RcloneInstallViewModel}">
+           <views:RcloneInstallView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewModels:SeedboxConnectionViewModel}">
             <views:SeedboxConnectionView/>
