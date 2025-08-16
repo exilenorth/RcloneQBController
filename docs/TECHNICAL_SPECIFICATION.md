@@ -15,8 +15,8 @@ The RcloneQBController is a Windows Presentation Foundation (WPF) desktop applic
 ## 2. System Architecture
 
 ### 2.1. Technology Stack
-*   **Framework:** .NET 8
-    > **Note:** The project will use .NET 8, a Long-Term Support (LTS) release, to ensure stability and a longer support lifecycle.
+*   **Framework:** .NET 9
+    > **Note:** The project will use .NET 9 to leverage the latest features and performance improvements.
 *   **UI:** Windows Presentation Foundation (WPF)
 *   **Language:** C#
 
@@ -440,7 +440,7 @@ The `ScriptRunnerService` in the C# application is the primary orchestrator for 
 ```batch
 "C:\Rclone\rclone.exe" copy "seedbox:/home/USER/torrents/qbittorrent/Media/TV" "D:\Media\TV" --update --min-age=5m --transfers=6 --checkers=8 --log-file="C:\Rclone\logs\rclone_tv_20230928.log" --log-level=INFO --use-json-log --log-format json
 ```
-This approach eliminates the need for a separate batch script template for rclone, as the logic is entirely managed within the C# application, providing greater flexibility.
+The `rclone_pull_media.bat` script will be generated from the `script_templates/rclone_pull_media.bat.template` file. The application will read the template, replace placeholders with values from `config.json`, and save the final script to the `scripts` directory.
 
 ### 7.2. `qb_cleanup_ratio.ps1` Generation & Execution
 

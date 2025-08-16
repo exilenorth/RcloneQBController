@@ -40,7 +40,10 @@ This section outlines the creation of the core components for the wizard interfa
 ### 2.1. Rclone Installation Step
 - **ViewModel:** `RcloneInstallViewModel.cs`
 - **Logic:**
-    - On initialization, the ViewModel will check for the existence of `rclone.exe` in common system paths and the application directory.
+    - On initialization, the ViewModel will follow the detailed detection workflow specified in the `TECHNICAL_SPECIFICATION.md`:
+      - Check `rclone_path` in `config.json`.
+      - Validate the path if it exists.
+      - Search the system `PATH` if the configured path is invalid or not found.
     - A property will bind to the user's selection (Yes/No).
     - A hyperlink to the rclone downloads page will be available.
     - The "Next" command will be enabled once the user confirms installation.
