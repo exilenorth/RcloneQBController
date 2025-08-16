@@ -48,6 +48,7 @@ The primary method of this service will be `public async Task RunScriptAsync(Job
 2.  **Redirect Output**: Standard output and error streams will be redirected to be read by the application.
 3.  **Asynchronous Reading**: The output will be read asynchronously line by line. For each line received, the `onOutput` callback will be invoked.
 4.  **Concurrency Control**: A `Mutex` or an `isRunning` flag will be implemented to prevent concurrent executions of the same job. If a job is already running, any new requests to run it will be ignored.
+5.  **Timeout Enforcement**: The service will start a timer based on the `max_runtime_minutes` for the job. If the process does not exit before the timer elapses, the service will terminate the process and log a timeout error.
 
 ## 3. Activity Dashboard Implementation
 

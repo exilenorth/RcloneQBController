@@ -15,8 +15,8 @@ The RcloneQBController is a Windows Presentation Foundation (WPF) desktop applic
 ## 2. System Architecture
 
 ### 2.1. Technology Stack
-*   **Framework:** .NET 9
-    > **Note:** The project will use .NET 9 to leverage the latest features and performance improvements.
+*   **Framework:** .NET 8 (LTS)
+    > **Note:** The project will use .NET 8 for long-term support (LTS) and stability. The target framework moniker will be `net8.0-windows`.
 *   **UI:** Windows Presentation Foundation (WPF)
 *   **Language:** C#
 
@@ -60,9 +60,15 @@ The project will follow the Model-View-ViewModel (MVVM) design pattern to ensure
 ## 3. Detailed Feature Specifications
 
 ### 3.1. Script Control & Scheduling
-The UI will feature buttons to manually start and stop each script. The `MainViewModel` will command the `ScriptRunnerService` to launch the appropriate script (`.bat` or `.ps1`) as a separate process. The `SchedulingService` will use a robust mechanism (potentially integrating with the Windows Task Scheduler API or using a resilient timer) to trigger the `ScriptRunnerService` based on the `pull_every_minutes` setting in `config.json`.
+The UI will feature buttons to manually start and stop each script. A "Preview Command" button will also be available for each rclone job. Clicking this button will display a modal window showing the exact `rclone` command that will be executed, including all paths and flags. This allows advanced users to verify the command before running it. The `MainViewModel` will command the `ScriptRunnerService` to launch the appropriate script (`.bat` or `.ps1`) as a separate process. The `SchedulingService` will use a robust mechanism to trigger the `ScriptRunnerService` based on the `schedule.pull_every_minutes` setting in `config.json`.
 
 To prevent overlapping executions, the `ScriptRunnerService` will implement a single-instance guard for each script type using a `Mutex`. Before initiating a new script run, the service will check the mutex. If a script is already running, the new execution request will be ignored. The service will also include logic to handle "catch-up" runs after the system wakes from sleep.
+
+#### 3.1.1. Script Guardrails
+To prevent runaway scripts, the `ScriptRunnerService` will enforce a maximum runtime.
+*   The `max_runtime_minutes` key in each job definition specifies the timeout for that job.
+*   When a script is started, the service will start a timer.
+*   If the script process has not exited when the timer elapses, the service will forcefully terminate the process and log a timeout error. This prevents stalled jobs from consuming system resources indefinitely.
 
 ### 3.2. Graphical Activity Dashboard
 The application will feature a two-part graphical dashboard to provide a rich, real-time view of script activity, replacing the previous plain-text console view.
@@ -83,14 +89,27 @@ To enable the dynamic file transfer view, each `rclone` job will be executed wit
 The C# application will listen to the standard output of each `rclone` process. As JSON log messages are received, they will be parsed to populate the dynamic file transfer view. Each job will write to a separate, timestamped log file (e.g., `rclone_tv_20230928_153000.log`) within the directory specified by `rclone.log_dir`.
 
 ### 3.3. VPN Status & Pre-Run Check
-A dedicated `VpnService` will check for VPN connectivity. The detection logic is designed for resilience:
+A dedicated `VpnService` will be responsible for all VPN and qBittorrent API connectivity checks.
 
+#### 3.3.1. Reusable Test Method
+The service will implement a single, reusable method: `public async Task<bool> TestApi()`. This method will perform the following steps:
 1.  **Scan for Private IPs:** Enumerate all active network interfaces and identify any with an IPv4 address in the private ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`).
 2.  **Prioritize VPN Adapters:** If multiple interfaces have private IPs, preference is given to adapters with "TAP", "OpenVPN", or a default route pointing to that interface.
 3.  **Gateway Derivation:** The service will infer the gateway IP by replacing the last octet of the client IP with `1` (e.g., `10.8.0.2` -> `10.8.0.1`).
-4.  **API Test:** A "Test qB API" button in the UI will trigger a connection test to `http://<gateway>:<port>/api/v2/app/version` to confirm reachability.
+4.  **API Test:** It will attempt a connection to `http://<gateway>:<port>/api/v2/app/version` to confirm reachability.
 
-This check is performed before any script execution. The UI will display a clear status indicator for the VPN connection.
+This method will be called by both the wizard's "Test Connection" button and the pre-run checks before any script execution. The UI will display a clear status indicator for the VPN connection based on the result of this method.
+
+### 3.4. UI Error Handling
+The application will map common technical failures to user-friendly messages to guide the user in resolving issues.
+
+| Technical Failure | User-Friendly Message | Suggested Action |
+| :--- | :--- | :--- |
+| `rclone.exe` not found | "Rclone executable not found." | "Please go to Settings and specify the correct path to `rclone.exe`." |
+| VPN connection test fails | "Cannot connect to qBittorrent API via VPN." | "Ensure your VPN is connected and that the qB host/port are correct in Settings." |
+| `config.json` validation fails | "Configuration error detected." | "Invalid path or value for `[key]`. Please correct it in Settings." |
+| Script timeout | "Job `[Job Name]` timed out." | "The script ran longer than the configured `max_runtime_minutes`. Check the log for details." |
+| `rclone config create` fails | "Failed to create rclone remote." | "Please check your seedbox connection details and try the wizard again." |
 
 ## 4. Configuration Management
 
@@ -99,6 +118,9 @@ The application will rely on a central `config.json` file located in the applica
 
 ```json
 {
+  "app_settings": {
+    "log_retention_days": 14
+  },
   "rclone": {
     "rclone_path": "C:\\Rclone\\rclone.exe",
     "remote_name": "seedbox",
@@ -106,8 +128,8 @@ The application will rely on a central `config.json` file located in the applica
     "use_json_log": true,
     "flags": { "min_age": "5m", "transfers": 6, "checkers": 8, "update": true },
     "jobs": [
-      { "name": "tv",     "source_path": "/home/USER/torrents/qbittorrent/Media/TV",     "dest_path": "D:\\Media\\TV",     "log": "rclone_tv" },
-      { "name": "movies", "source_path": "/home/USER/torrents/qbittorrent/Media/Movies", "dest_path": "D:\\Media\\Movies", "log": "rclone_movies" }
+      { "name": "tv",     "source_path": "/home/USER/torrents/qbittorrent/Media/TV",     "dest_path": "D:\\Media\\TV",     "log": "rclone_tv", "max_runtime_minutes": 60 },
+      { "name": "movies", "source_path": "/home/USER/torrents/qbittorrent/Media/Movies", "dest_path": "D:\\Media\\Movies", "log": "rclone_movies", "max_runtime_minutes": 120 }
     ]
   },
   "seedbox": {
@@ -151,6 +173,27 @@ A `ConfigurationService` class will be implemented as a singleton. It will expos
 *   `LoadConfiguration()`: Reads and deserializes the `config.json` file into the `AppConfig` model.
 *   `SaveConfiguration(AppConfig config)`: Serializes the `AppConfig` model and writes it to `config.json`.
 *   `ValidateConfiguration()`: Performs checks on the loaded configuration to ensure critical paths and values are valid before use.
+
+#### 4.2.1. Configuration Validation
+The `ValidateConfiguration()` method will perform a series of checks to ensure the application can run without predictable errors. If validation fails, a user-friendly error message will be displayed.
+*   **Path Validation:**
+    *   `rclone.rclone_path` must exist.
+    *   `rclone.log_dir` must exist or be creatable.
+    *   `rclone.jobs[n].dest_path` for each job must exist.
+    *   `vpn.config_file` must exist.
+*   **Network Validation:**
+    *   `qbittorrent.port` must be a valid port number (1-65535).
+*   **Value Validation:**
+    *   `cleanup.target_ratio` must be >= 0.
+    *   `schedule.pull_every_minutes` must be a positive integer.
+    *   `app_settings.log_retention_days` must be a positive integer.
+    *   `rclone.jobs[n].max_runtime_minutes` must be a positive integer.
+
+### 4.3. Log Rotation
+The application will implement a log purging mechanism to prevent log files from consuming excessive disk space.
+*   The `app_settings.log_retention_days` key in `config.json` defines the maximum number of days to keep log files.
+*   On application startup, a background task will scan the log directory specified by `rclone.log_dir`.
+*   Any log files with a "Last Modified" date older than the specified retention period will be permanently deleted.
 
 ## 5. External Dependencies
 
@@ -284,7 +327,10 @@ graph TD
     4.  **"How do you want to authenticate?"**
         *   **UI Control:** `Radio Buttons` with two options: `Password` and `SSH key file`.
         *   **Action:**
-            *   If `Password` is selected, a masked `TextBox` will be displayed for password entry. A note will inform the user: "Your password will be safely stored using Rclone’s built-in encryption." The application will use `rclone obscure` to encrypt the password and set the `pass` parameter.
+            *   If `Password` is selected, a masked `TextBox` will be displayed for password entry. A note will inform the user: "Your password will be safely stored using Rclone’s built-in encryption." The UI will **never** handle the plaintext password directly. When the user proceeds, the application will:
+                1.  Call `rclone obscure` with the provided password via standard input.
+                2.  Capture the obscured result from standard output.
+                3.  Use this obscured result directly in the non-interactive `rclone config create` command.
             *   If `SSH key file` is selected, a `TextBox` with a "Browse" button will appear for the private key file path, along with an optional masked `TextBox` for a passphrase.
     5.  **"What name should we give this remote?"**
         *   **UI Control:** `TextBox`

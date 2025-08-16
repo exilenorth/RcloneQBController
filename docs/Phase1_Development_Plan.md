@@ -13,7 +13,7 @@ This document outlines the specific, actionable technical steps required to comp
 
 2.  **Create WPF Project:**
     *   Create a new WPF Project file named `src/RcloneQBController.csproj`.
-    *   Set the `TargetFramework` property in the `.csproj` file to `net9.0-windows`.
+    *   Set the `TargetFramework` property in the `.csproj` file to `net8.0-windows`.
 
 3.  **Establish Directory Structure:**
     *   Create the `script_templates/` directory in the project root to store script blueprints.
@@ -58,8 +58,10 @@ This document outlines the specific, actionable technical steps required to comp
     *   The class should be implemented as a singleton to ensure a single source of configuration data.
     *   It must utilize the `System.Text.Json` library for serialization and deserialization.
     *   Define the following public methods:
-        *   `public AppConfig LoadConfig()`: This method will read `config.json` from the disk, deserialize it into the `AppConfig` object model, and return the object.
+        *   `public AppConfig LoadConfig()`: This method will read `config.json` from the disk, deserialize it into the `AppConfig` object model, and return the object. It will also trigger the log rotation task.
         *   `public void SaveConfig(AppConfig config)`: This method will take an `AppConfig` object, serialize it into a JSON string with appropriate formatting, and write it back to the `config.json` file.
+        *   `public void ValidateConfiguration(AppConfig config)`: This method will perform all validation checks as defined in the `TECHNICAL_SPECIFICATION.md` (e.g., paths exist, ports are valid).
+        *   `private void PurgeOldLogs()`: A private method to be called on startup that deletes log files older than `app_settings.log_retention_days`.
 
 ## 3. Core Application Shell
 

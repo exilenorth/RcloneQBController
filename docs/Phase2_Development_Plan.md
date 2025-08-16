@@ -52,7 +52,7 @@ This section outlines the creation of the core components for the wizard interfa
 - **ViewModel:** `SeedboxConnectionViewModel.cs`
 - **Logic:**
     - Properties will be created for `Host`, `Port`, `Username`, `Password`, and `RemoteName`.
-    - The ViewModel will use `System.Diagnostics.Process` to execute `rclone obscure` on the user's password.
+    - The ViewModel will implement the secure password flow defined in the `TECHNICAL_SPECIFICATION.md`: it will call `rclone obscure` and use the captured output for the final `rclone config create` command, ensuring no plaintext passwords are ever stored.
     - The "Test Connection" command will construct and run `rclone lsd [remote]:` non-interactively, capturing the output to determine success or failure.
     - Upon successful completion of the wizard, the ViewModel will orchestrate the final `rclone config create` command.
 
@@ -63,14 +63,14 @@ This section outlines the creation of the core components for the wizard interfa
 - **Logic:**
     - The ViewModel will check for the existence of `openvpn.exe` at its default installation path.
     - It will handle the file selection logic for the `.ovpn` configuration file, copying it to the appropriate user directory.
-    - A "Test VPN" command will attempt to establish a connection and verify by checking the output of `ipconfig`.
+    - A "Test VPN" command will call the reusable `VpnService.TestApi()` method to confirm connectivity.
 
 ### 3.2. qBittorrent Step
 - **ViewModel:** `QbittorrentViewModel.cs`
 - **Logic:**
     - A "Find my VPN IP" command will execute `ipconfig`, parse the output to find the VPN adapter's IP, and derive the gateway IP (e.g., `10.8.0.2` -> `10.8.0.1`).
     - Properties for `Host`, `Port`, `Username`, and `Password` will be available.
-    - The "Test Connection" command will use an `HttpClient` to make a request to the qBittorrent API's version endpoint.
+    - The "Test Connection" command will call the reusable `VpnService.TestApi()` method to confirm connectivity.
     - Credentials will be securely stored in the Windows Credential Manager.
 
 ## 4. Script Generation Service

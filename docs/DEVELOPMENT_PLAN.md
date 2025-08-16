@@ -5,7 +5,7 @@ This document outlines the phased development plan for the RcloneQBController ap
 ## Phase 1: Core Foundation & Services
 *   **Goal:** Establish the project skeleton and the core, non-UI services required for the application to function.
 *   **Key Tasks:** 
-    *   Set up the .NET 9 WPF project.
+    *   Set up the .NET 8 WPF project.
     *   Implement the configuration service to read/write `config.json`.
     *   Create placeholder models and view models.
 *   **Commit Point:** `feat: Initial project structure and core configuration services`

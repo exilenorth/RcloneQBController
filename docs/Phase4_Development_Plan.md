@@ -11,7 +11,7 @@ To create a reliable, background scheduling service that automatically triggers 
 *   **File Creation:** A new service file, `SchedulingService.cs`, will be created in the `/Services` directory.
 *   **Core Logic:** The service will utilize `System.Threading.Timer` for its scheduling mechanism. This provides a lightweight, thread-safe timer suitable for background tasks in a WPF application.
 *   **Methods:**
-    *   `public void Start(Job job)`: This method will initialize and start a new timer for a specific job (e.g., an rclone pull task). The timer's interval will be dynamically set based on the `pull_every_minutes` value for that job in `config.json`. The timer's callback delegate will be configured to invoke the `ScriptRunnerService`.
+    *   `public void Start(Job job)`: This method will initialize and start a new timer for a specific job (e.g., an rclone pull task). The timer's interval will be dynamically set based on the `schedule.pull_every_minutes` value in `config.json`. The timer's callback delegate will be configured to invoke the `ScriptRunnerService`.
     *   `public void Stop(Job job)`: This method will find the corresponding active timer for the specified job and dispose of it, effectively stopping the schedule for that job.
 *   **Integration:** The `MainViewModel` will be responsible for calling the `Start` and `Stop` methods of the `SchedulingService` when the user enables or disables a job's schedule from the UI. The service will be registered as a singleton in the application's dependency injection container to ensure a single source of truth for all scheduled tasks.
 
