@@ -100,6 +100,10 @@ namespace RcloneQBController.ViewModels
                 {
                     transfer.Progress = (double)log.Stats.Bytes / log.Stats.TotalBytes * 100;
                 }
+                else
+                {
+                    transfer.Progress = 0;
+                }
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;

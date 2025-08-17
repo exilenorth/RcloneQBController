@@ -18,7 +18,7 @@ namespace RcloneQBController.Services
         public string GetPreviewCommand(RcloneJobConfig job)
         {
             var config = _configurationService.LoadConfig();
-            var templateDirectory = Path.Combine(Directory.GetCurrentDirectory(), "script_templates");
+            var templateDirectory = Path.Combine(System.AppContext.BaseDirectory, "script_templates");
             var rcloneTemplatePath = Path.Combine(templateDirectory, "rclone_pull_media.bat.template");
 
             if (File.Exists(rcloneTemplatePath))
@@ -45,13 +45,13 @@ namespace RcloneQBController.Services
                 return scriptContent.ToString();
             }
 
-            return "Template file not found.";
+            return $"Template file not found at: {rcloneTemplatePath}";
         }
 
         public void GenerateScripts(AppConfig config)
         {
-            var templateDirectory = Path.Combine(Directory.GetCurrentDirectory(), "script_templates");
-            var outputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "scripts");
+            var templateDirectory = Path.Combine(System.AppContext.BaseDirectory, "script_templates");
+            var outputDirectory = Path.Combine(System.AppContext.BaseDirectory, "scripts");
 
             if (!Directory.Exists(outputDirectory))
             {
@@ -92,6 +92,10 @@ namespace RcloneQBController.Services
                         File.WriteAllText(outputPath, scriptContent.ToString());
                     }
                 }
+                else
+                {
+                    throw new FileNotFoundException($"Rclone template file not found at: {rcloneTemplatePath}");
+                }
             }
 
             // --- Generate qB Cleanup Script ---
@@ -101,6 +105,10 @@ namespace RcloneQBController.Services
                 var qbTemplate = File.ReadAllText(qbTemplatePath);
                 var qbOutputPath = Path.Combine(outputDirectory, "qb_cleanup_ratio.ps1");
                 File.WriteAllText(qbOutputPath, qbTemplate);
+            }
+            else
+            {
+                throw new FileNotFoundException($"qBittorrent cleanup template file not found at: {qbTemplatePath}");
             }
         }
     }

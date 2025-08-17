@@ -25,7 +25,7 @@ namespace RcloneQBController.Services
 
             try
             {
-                var scriptPath = Path.Combine(Directory.GetCurrentDirectory(), "scripts", $"rclone_pull_{job.Name}.bat");
+                var scriptPath = Path.Combine(System.AppContext.BaseDirectory, "scripts", $"rclone_pull_{job.Name}.bat");
                 if (!File.Exists(scriptPath))
                 {
                     onOutput($"Error: Script not found at {scriptPath}");
@@ -62,7 +62,7 @@ namespace RcloneQBController.Services
 
             try
             {
-                var scriptPath = Path.Combine(Directory.GetCurrentDirectory(), "scripts", "qb_cleanup_ratio.ps1");
+                var scriptPath = Path.Combine(System.AppContext.BaseDirectory, "scripts", "qb_cleanup_ratio.ps1");
                 if (!File.Exists(scriptPath))
                 {
                     onOutput($"Error: Script not found at {scriptPath}");

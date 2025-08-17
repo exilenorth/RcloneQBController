@@ -43,6 +43,7 @@ namespace RcloneQBController.ViewModels
                 if (job is RcloneJobConfig rcloneJob)
                 {
                     rcloneJob.IsRunning = true;
+                    ActivityDashboard.FileTransfers.Clear();
                     await _scriptRunner.RunRcloneJobAsync(rcloneJob, (output) =>
                     {
                         App.Current.Dispatcher.Invoke(() =>
