@@ -1,3 +1,4 @@
+using RcloneQBController.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
@@ -10,6 +11,16 @@ namespace RcloneQBController.ViewModels
         private string? _host;
         private int _port = 8080;
         private string? _username;
+        private bool _isDryRunEnabled;
+        private bool _isTestingConnection;
+        private readonly ScriptRunnerService _scriptRunner;
+        private readonly ActivityDashboardViewModel _activityDashboard;
+
+        public bool IsTestingConnection
+        {
+            get => _isTestingConnection;
+            set { _isTestingConnection = value; OnPropertyChanged(); }
+        }
 
         public string? Host
         {
@@ -29,13 +40,23 @@ namespace RcloneQBController.ViewModels
             set { _username = value; OnPropertyChanged(); }
         }
 
+        public bool IsDryRunEnabled
+        {
+            get => _isDryRunEnabled;
+            set { _isDryRunEnabled = value; OnPropertyChanged(); }
+        }
+
         public ICommand FindVpnIpCommand { get; }
         public ICommand TestConnectionCommand { get; }
+        public ICommand RunCleanupScriptCommand { get; }
 
-        public QbittorrentViewModel()
+        public QbittorrentViewModel(ScriptRunnerService scriptRunner, ActivityDashboardViewModel activityDashboard)
         {
+            _scriptRunner = scriptRunner;
+            _activityDashboard = activityDashboard;
             FindVpnIpCommand = new RelayCommand(FindVpnIp);
             TestConnectionCommand = new RelayCommand(TestConnection);
+            RunCleanupScriptCommand = new RelayCommand(RunCleanupScript);
         }
 
         private void FindVpnIp(object parameter)
@@ -43,13 +64,33 @@ namespace RcloneQBController.ViewModels
             // Logic to run ipconfig and parse output
         }
 
-        private void TestConnection(object parameter)
+        private async void TestConnection(object parameter)
         {
             if (parameter is PasswordBox passwordBox)
             {
                 var password = passwordBox.Password;
-                // Logic to test qBittorrent API connection
+                IsTestingConnection = true;
+                try
+                {
+                    // Logic to test qBittorrent API connection
+                    await System.Threading.Tasks.Task.Delay(2000); // Simulate network delay
+                }
+                finally
+                {
+                    IsTestingConnection = false;
+                }
             }
+        }
+
+        private async void RunCleanupScript(object parameter)
+        {
+            await _scriptRunner.RunCleanupScriptAsync(IsDryRunEnabled, (output) =>
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    _activityDashboard.ParseOutput(output);
+                });
+            });
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

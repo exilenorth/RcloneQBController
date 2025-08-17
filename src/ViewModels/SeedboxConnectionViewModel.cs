@@ -11,25 +11,56 @@ namespace RcloneQBController.ViewModels
         private int _port = 22;
         private string? _username;
         private string _remoteName = "seedbox";
-
+        private bool _isTestingConnection;
+        private string? _sourcePath;
+        private bool _sourcePathManuallySet = false;
+ 
+        public bool IsTestingConnection
+        {
+            get => _isTestingConnection;
+            set { _isTestingConnection = value; OnPropertyChanged(); }
+        }
+ 
         public string? Host
         {
             get => _host;
             set { _host = value; OnPropertyChanged(); }
         }
-
+ 
         public int Port
         {
             get => _port;
             set { _port = value; OnPropertyChanged(); }
         }
-
+ 
         public string? Username
         {
             get => _username;
-            set { _username = value; OnPropertyChanged(); }
+            set
+            {
+                if (_username != value)
+                {
+                    _username = value;
+                    OnPropertyChanged();
+                    UpdateSourcePath();
+                }
+            }
         }
-
+ 
+        public string? SourcePath
+        {
+            get => _sourcePath;
+            set
+            {
+                if (_sourcePath != value)
+                {
+                    _sourcePath = value;
+                    _sourcePathManuallySet = true;
+                    OnPropertyChanged();
+                }
+            }
+        }
+ 
         public string RemoteName
         {
             get => _remoteName;
@@ -43,17 +74,35 @@ namespace RcloneQBController.ViewModels
             TestConnectionCommand = new RelayCommand(TestConnection);
         }
 
-        private void TestConnection(object parameter)
+        private async void TestConnection(object parameter)
         {
             if (parameter is PasswordBox passwordBox)
             {
                 var password = passwordBox.Password;
-                // Logic to run rclone obscure and rclone lsd
+                IsTestingConnection = true;
+                try
+                {
+                    // Logic to run rclone obscure and rclone lsd
+                    await System.Threading.Tasks.Task.Delay(2000); // Simulate network delay
+                }
+                finally
+                {
+                    IsTestingConnection = false;
+                }
             }
         }
-
+ 
+        private void UpdateSourcePath()
+        {
+            if (!_sourcePathManuallySet && !string.IsNullOrWhiteSpace(Username))
+            {
+                SourcePath = $"/home/{Username}/torrents/";
+                _sourcePathManuallySet = false; // Reset flag after programmatic change
+            }
+        }
+ 
         public event PropertyChangedEventHandler? PropertyChanged;
-
+ 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

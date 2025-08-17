@@ -1,20 +1,23 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
 using RcloneQBController.Models;
 using System.IO;
+using System.Text;
 
 namespace RcloneQBController.Services
 {
     public class ScriptRunnerService
     {
-        private static Mutex _rcloneMutex = new Mutex(false, "RcloneQBController_Rclone");
-        private static Mutex _cleanupMutex = new Mutex(false, "RcloneQBController_Cleanup");
+        private static readonly Mutex RcloneMutex = new Mutex(false, "RcloneQBController_Rclone");
+        private static readonly Mutex CleanupMutex = new Mutex(false, "RcloneQBController_Cleanup");
+        private readonly Dictionary<string, Process> _runningProcesses = new Dictionary<string, Process>();
 
         public async Task RunRcloneJobAsync(RcloneJobConfig job, Action<string> onOutput)
         {
-            if (!_rcloneMutex.WaitOne(TimeSpan.Zero, true))
+            if (!RcloneMutex.WaitOne(TimeSpan.Zero, true))
             {
                 onOutput("An rclone job is already running.");
                 return;
@@ -29,17 +32,29 @@ namespace RcloneQBController.Services
                     return;
                 }
 
-                await ExecuteProcessAsync(scriptPath, "", onOutput, job.MaxRuntimeMinutes);
+                await ExecuteProcessAsync(job.Name, scriptPath, "", onOutput, job.MaxRuntimeMinutes);
             }
             finally
             {
-                _rcloneMutex.ReleaseMutex();
+                RcloneMutex.ReleaseMutex();
             }
         }
 
-        public async Task RunCleanupScriptAsync(Action<string> onOutput)
+        public void StopJob(string jobName)
         {
-            if (!_cleanupMutex.WaitOne(TimeSpan.Zero, true))
+            if (_runningProcesses.TryGetValue(jobName, out var process))
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
+                _runningProcesses.Remove(jobName);
+            }
+        }
+
+        public async Task RunCleanupScriptAsync(bool isDryRun, Action<string> onOutput)
+        {
+            if (!CleanupMutex.WaitOne(TimeSpan.Zero, true))
             {
                 onOutput("Cleanup script is already running.");
                 return;
@@ -53,16 +68,22 @@ namespace RcloneQBController.Services
                     onOutput($"Error: Script not found at {scriptPath}");
                     return;
                 }
-                
-                await ExecuteProcessAsync("powershell.exe", $"-ExecutionPolicy Bypass -File \"{scriptPath}\"", onOutput, 0);
+
+                var arguments = new StringBuilder($"-ExecutionPolicy Bypass -File \"{scriptPath}\"");
+                if (isDryRun)
+                {
+                    arguments.Append(" -DryRun");
+                }
+
+                await ExecuteProcessAsync("cleanup", "powershell.exe", arguments.ToString(), onOutput, 0);
             }
             finally
             {
-                _cleanupMutex.ReleaseMutex();
+                CleanupMutex.ReleaseMutex();
             }
         }
 
-        private async Task ExecuteProcessAsync(string fileName, string arguments, Action<string> onOutput, int timeoutMinutes)
+        private async Task ExecuteProcessAsync(string jobName, string fileName, string arguments, Action<string> onOutput, int timeoutMinutes)
         {
             var process = new Process
             {
@@ -77,10 +98,14 @@ namespace RcloneQBController.Services
                 }
             };
 
-            process.OutputDataReceived += (sender, args) => {
+            _runningProcesses[jobName] = process;
+
+            process.OutputDataReceived += (sender, args) =>
+            {
                 if (args.Data != null) onOutput(args.Data);
             };
-            process.ErrorDataReceived += (sender, args) => {
+            process.ErrorDataReceived += (sender, args) =>
+            {
                 if (args.Data != null) onOutput($"ERROR: {args.Data}");
             };
 
@@ -98,7 +123,10 @@ namespace RcloneQBController.Services
                     }
                     catch (TaskCanceledException)
                     {
-                        process.Kill();
+                        if (!process.HasExited)
+                        {
+                            process.Kill();
+                        }
                         onOutput($"ERROR: Process timed out after {timeoutMinutes} minutes and was terminated.");
                     }
                 }
@@ -107,6 +135,8 @@ namespace RcloneQBController.Services
             {
                 await process.WaitForExitAsync();
             }
+
+            _runningProcesses.Remove(jobName);
         }
     }
 }

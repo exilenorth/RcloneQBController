@@ -3,13 +3,51 @@ using RcloneQBController.Models;
 using System.Text.Json;
 using System;
 using System.Linq;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace RcloneQBController.ViewModels
 {
-    public class ActivityDashboardViewModel
+    public class ActivityDashboardViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<LogEntry> LogEntries { get; } = new ObservableCollection<LogEntry>();
+        private readonly ObservableCollection<LogEntry> _logEntries = new ObservableCollection<LogEntry>();
+        public ICollectionView LogEntries { get; }
+
         public ObservableCollection<FileTransfer> FileTransfers { get; } = new ObservableCollection<FileTransfer>();
+
+        private string _logFilterText;
+        public string LogFilterText
+        {
+            get => _logFilterText;
+            set
+            {
+                _logFilterText = value;
+                OnPropertyChanged(nameof(LogFilterText));
+                LogEntries.Refresh();
+            }
+        }
+
+        public ActivityDashboardViewModel()
+        {
+            LogEntries = CollectionViewSource.GetDefaultView(_logEntries);
+            LogEntries.Filter = FilterLogEntries;
+        }
+
+        private bool FilterLogEntries(object item)
+        {
+            if (string.IsNullOrEmpty(LogFilterText))
+            {
+                return true;
+            }
+
+            if (item is LogEntry logEntry)
+            {
+                return logEntry.Message.IndexOf(LogFilterText, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+
+            return false;
+        }
+
 
         public void ParseOutput(string output)
         {
@@ -24,12 +62,14 @@ namespace RcloneQBController.ViewModels
                 }
                 else if (rcloneLog != null)
                 {
-                    LogEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = rcloneLog.Message, Level = ParseLogLevel(rcloneLog.Level) });
+                    App.Current.Dispatcher.Invoke(() =>
+                    _logEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = rcloneLog.Message, Level = ParseLogLevel(rcloneLog.Level) }));
                 }
             }
             catch (JsonException)
             {
-                LogEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = output, Level = ParseLogLevel(output) });
+                 App.Current.Dispatcher.Invoke(() =>
+                _logEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = output, Level = ParseLogLevel(output) }));
             }
         }
 
@@ -61,6 +101,12 @@ namespace RcloneQBController.ViewModels
                     transfer.Progress = (double)log.Stats.Bytes / log.Stats.TotalBytes * 100;
                 }
             }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

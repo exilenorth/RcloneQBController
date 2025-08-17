@@ -9,8 +9,10 @@ namespace RcloneQBController.ViewModels
     public class MainViewModel
     {
         public ActivityDashboardViewModel ActivityDashboard { get; }
+        public QbittorrentViewModel Qbittorrent { get; }
         public ObservableCollection<RcloneJobConfig> Jobs { get; }
         public ICommand RunJobCommand { get; }
+        public ICommand StopJobCommand { get; }
         public ICommand PreviewCommand { get; }
 
         private readonly ScriptRunnerService _scriptRunner;
@@ -21,6 +23,7 @@ namespace RcloneQBController.ViewModels
         {
             ActivityDashboard = new ActivityDashboardViewModel();
             _scriptRunner = new ScriptRunnerService();
+            Qbittorrent = new QbittorrentViewModel(_scriptRunner, ActivityDashboard);
             _configurationService = ConfigurationService.Instance;
             _scriptGenerationService = new ScriptGenerationService(_configurationService);
 
@@ -39,6 +42,7 @@ namespace RcloneQBController.ViewModels
             {
                 if (job is RcloneJobConfig rcloneJob)
                 {
+                    rcloneJob.IsRunning = true;
                     await _scriptRunner.RunRcloneJobAsync(rcloneJob, (output) =>
                     {
                         App.Current.Dispatcher.Invoke(() =>
@@ -46,6 +50,15 @@ namespace RcloneQBController.ViewModels
                             ActivityDashboard.ParseOutput(output);
                         });
                     });
+                    rcloneJob.IsRunning = false;
+                }
+            });
+
+            StopJobCommand = new RelayCommand((job) =>
+            {
+                if (job is RcloneJobConfig rcloneJob)
+                {
+                    _scriptRunner.StopJob(rcloneJob.Name);
                 }
             });
 

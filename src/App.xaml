@@ -33,6 +33,6 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewModels:CleanupSummaryViewModel}">
             <views:CleanupSummaryView/>
-        </Data_Template>
+        </DataTemplate>
     </Application.Resources>
 </Application>

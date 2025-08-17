@@ -43,7 +43,7 @@ namespace RcloneQBController.ViewModels
                 new TransferJobViewModel(),
                 new RcloneSummaryViewModel(),
                 new OpenVPNViewModel(),
-                new QbittorrentViewModel(),
+                new QbittorrentViewModel(new ScriptRunnerService(), new ActivityDashboardViewModel()),
                 new CleanupSummaryViewModel()
             };
 

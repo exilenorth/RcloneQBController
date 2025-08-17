@@ -40,7 +40,20 @@
                 </TextBlock>
             </StackPanel>
             <TextBox Text="{Binding RemoteName}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
-            <Button Content="Test Connection" Command="{Binding TestConnectionCommand}" Width="150" Margin="0,15,0,0" HorizontalAlignment="Center" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0"/>
+            <Button Command="{Binding TestConnectionCommand}" Width="150" Margin="0,15,0,0" HorizontalAlignment="Center" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Content" Value="Test Connection"/>
+                        <Setter Property="IsEnabled" Value="True"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsTestingConnection}" Value="True">
+                                <Setter Property="Content" Value="Testing..."/>
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>
