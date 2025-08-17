@@ -7,13 +7,31 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="500">
     <Grid>
-        <ListView ItemsSource="{Binding ActivityDashboard.LogEntries}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Timestamp" DisplayMemberBinding="{Binding Timestamp}" />
-                    <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" />
-                </GridView>
-            </ListView.View>
-        </ListView>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DataGrid Grid.Row="0" ItemsSource="{Binding ActivityDashboard.FileTransfers}" AutoGenerateColumns="False" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" Width="*" />
+                <DataGridTextColumn Header="Size" Binding="{Binding Size, StringFormat={}{0:N0} bytes}" Width="100" />
+                <DataGridTemplateColumn Header="Progress" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ProgressBar Value="{Binding Progress}" Maximum="100" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DataGrid Grid.Row="1" ItemsSource="{Binding ActivityDashboard.LogEntries}" AutoGenerateColumns="False" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Icon" Binding="{Binding Status}" Width="40" />
+                <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" Width="80" />
+                <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </UserControl>

@@ -35,7 +35,7 @@ namespace RcloneQBController.ViewModels
             {
                 if (job is RcloneJobConfig rcloneJob)
                 {
-                    await _scriptRunner.RunScriptAsync(rcloneJob, (output) =>
+                    await _scriptRunner.RunRcloneJobAsync(rcloneJob, (output) =>
                     {
                         App.Current.Dispatcher.Invoke(() =>
                         {

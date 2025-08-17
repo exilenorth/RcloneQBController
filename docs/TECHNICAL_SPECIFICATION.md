@@ -15,8 +15,8 @@ The RcloneQBController is a Windows Presentation Foundation (WPF) desktop applic
 ## 2. System Architecture
 
 ### 2.1. Technology Stack
-*   **Framework:** .NET 8 (LTS)
-    > **Note:** The project will use .NET 8 for long-term support (LTS) and stability. The target framework moniker will be `net8.0-windows`.
+*   **Framework:** .NET 9
+    > **Note:** The project will use .NET 9. The target framework moniker will be `net9.0-windows`.
 *   **UI:** Windows Presentation Foundation (WPF)
 *   **Language:** C#
 
