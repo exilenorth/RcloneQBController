@@ -73,11 +73,11 @@ To prevent runaway scripts, the `ScriptRunnerService` will enforce a maximum run
 *   If the script process has not exited when the timer elapses, the service will forcefully terminate the process and log a timeout error. This prevents stalled jobs from consuming system resources indefinitely.
 
 ### 3.2. Graphical Activity Dashboard
-The application will feature a two-part graphical dashboard to provide a rich, real-time view of script activity, replacing the previous plain-text console view.
+The application will feature a two-part graphical dashboard to provide a rich, real-time view of script activity, replacing the previous plain-text console view. The UI provides clear visual feedback for running jobs, such as progress bars and status icons. Controls are logically grouped for intuitive operation. After a job completes, the relevant UI sections are cleared to prepare for the next operation.
 
 **Part 1: Graphical Log View**
 A rich, filterable `DataGrid` will display log entries from all script activity.
-*   **Columns:** Timestamp, Script, Status Icon (e.g., ✅, ❌, ℹ️), and Message.
+*   **Columns:** Timestamp, Script, Status Icon (e.g., ✅, ❌, ℹ️), and Message. A filter textbox with placeholder text allows users to quickly find specific log entries.
 *   **Behavior:** Log entries from the `qb_cleanup_ratio.ps1` script will be parsed line-by-line. Icons and colors will be applied based on keywords (e.g., "DELETING", "ERROR") to provide at-a-glance status information.
 
 **Part 2: Dynamic File Transfer View**
@@ -178,7 +178,7 @@ A `ConfigurationService` class will be implemented as a singleton. It will expos
 
 #### 4.2.1. Configuration Validation
 The `ValidateConfiguration()` method will perform a series of checks to ensure the application can run without predictable errors. If validation fails, a user-friendly error message will be displayed.
-*   **Path Validation:**
+*   **Path Validation:** The application's path resolution logic has been improved to be more robust and handle a wider variety of user-configured paths.
     *   `rclone.rclone_path` must exist.
     *   `rclone.log_dir` must exist or be creatable.
     *   `rclone.jobs[n].dest_path` for each job must exist.
@@ -186,7 +186,7 @@ The `ValidateConfiguration()` method will perform a series of checks to ensure t
 *   **Network Validation:**
     *   `qbittorrent.port` must be a valid port number (1-65535).
 *   **Value Validation:**
-    *   `cleanup.target_ratio` must be >= 0.
+    *   `cleanup.target_ratio` must be a non-negative number. The application includes checks to prevent division-by-zero errors if this value is used in calculations.
     *   `schedule.pull_every_minutes` must be a positive integer.
     *   `app_settings.log_retention_days` must be a positive integer.
     *   `rclone.jobs[n].max_runtime_minutes` must be a positive integer.
@@ -347,10 +347,10 @@ graph TD
     *   Buttons to "Add", "Edit", and "Remove" jobs.
 *   **Default Jobs:** The wizard will pre-populate two default jobs: "TV Shows" and "Movies".
     *   **TV Shows:**
-        *   **Source:** `/home/USERNAME/torrents/qbittorrent/Media/TV` (where `USERNAME` is replaced with the value from Step 2).
+        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/TV` (The `{username}` is automatically populated from the value entered in Step 2).
         *   **Destination:** A browseable local path (e.g., `D:\Media\TV`).
     *   **Movies:**
-        *   **Source:** `/home/USERNAME/torrents/qbittorrent/Media/Movies` (where `USERNAME` is replaced with the value from Step 2).
+        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/Movies` (The `{username}` is automatically populated from the value entered in Step 2).
         *   **Destination:** A browseable local path (e.g., `D:\Media\Movies`).
 *   **Action:** The user can modify, remove, or add to these jobs as needed. The final list of jobs will be saved to the `rclone.jobs` array in `config.json`.
 
@@ -472,7 +472,7 @@ graph TD
 
 To enhance portability and simplify setup, the application will dynamically generate the necessary helper scripts after the user successfully completes the First-Time Setup Wizard. This ensures the scripts are tailored to the user's specific environment and configuration.
 
-The application will use files in the `script_templates` directory as blueprints. These template files (`rclone_pull_media.bat.template` and `qb_cleanup_ratio.ps1.template`) contain placeholders that are replaced with user-specific values from `config.json`.
+The application will use files in the `script_templates` directory as blueprints. These template files (`rclone_pull_media.bat.template` and `qb_cleanup_ratio.ps1.template`) contain placeholders that are replaced with user-specific values from `config.json`. The application gracefully handles cases where template files are missing, showing a user-friendly error message and preventing crashes.
 
 The final, executable scripts will be saved in a `scripts` subfolder within the application's data directory (e.g., `%APPDATA%\RcloneQBController\scripts`).
 
