@@ -45,7 +45,7 @@ namespace RcloneQBController.Services
                 return scriptContent.ToString();
             }
 
-            return $"Template file not found at: {rcloneTemplatePath}";
+                        throw new FileNotFoundException($"Template file not found at: {rcloneTemplatePath}");
         }
 
         public void GenerateScripts(AppConfig config)

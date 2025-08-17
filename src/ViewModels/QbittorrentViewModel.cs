@@ -13,6 +13,7 @@ namespace RcloneQBController.ViewModels
         private string? _username;
         private bool _isDryRunEnabled;
         private bool _isTestingConnection;
+        private bool _isRunning;
         private readonly ScriptRunnerService _scriptRunner;
         private readonly ActivityDashboardViewModel _activityDashboard;
 
@@ -20,6 +21,12 @@ namespace RcloneQBController.ViewModels
         {
             get => _isTestingConnection;
             set { _isTestingConnection = value; OnPropertyChanged(); }
+        }
+
+        public bool IsRunning
+        {
+            get => _isRunning;
+            set { _isRunning = value; OnPropertyChanged(); }
         }
 
         public string? Host
@@ -49,6 +56,7 @@ namespace RcloneQBController.ViewModels
         public ICommand FindVpnIpCommand { get; }
         public ICommand TestConnectionCommand { get; }
         public ICommand RunCleanupScriptCommand { get; }
+        public ICommand StopCleanupScriptCommand { get; }
 
         public QbittorrentViewModel(ScriptRunnerService scriptRunner, ActivityDashboardViewModel activityDashboard)
         {
@@ -57,6 +65,7 @@ namespace RcloneQBController.ViewModels
             FindVpnIpCommand = new RelayCommand(FindVpnIp);
             TestConnectionCommand = new RelayCommand(TestConnection);
             RunCleanupScriptCommand = new RelayCommand(RunCleanupScript);
+            StopCleanupScriptCommand = new RelayCommand(StopCleanupScript);
         }
 
         private void FindVpnIp(object parameter)
@@ -84,6 +93,7 @@ namespace RcloneQBController.ViewModels
 
         private async void RunCleanupScript(object parameter)
         {
+            IsRunning = true;
             await _scriptRunner.RunCleanupScriptAsync(IsDryRunEnabled, (output) =>
             {
                 App.Current.Dispatcher.Invoke(() =>
@@ -91,6 +101,12 @@ namespace RcloneQBController.ViewModels
                     _activityDashboard.ParseOutput(output);
                 });
             });
+            IsRunning = false;
+        }
+
+        private void StopCleanupScript(object parameter)
+        {
+            _scriptRunner.StopJob("cleanup");
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

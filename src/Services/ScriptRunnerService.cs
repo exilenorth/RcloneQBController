@@ -23,21 +23,21 @@ namespace RcloneQBController.Services
                 return;
             }
 
-            try
-            {
-                var scriptPath = Path.Combine(System.AppContext.BaseDirectory, "scripts", $"rclone_pull_{job.Name}.bat");
-                if (!File.Exists(scriptPath))
-                {
-                    onOutput($"Error: Script not found at {scriptPath}");
-                    return;
-                }
-
-                await ExecuteProcessAsync(job.Name, scriptPath, "", onOutput, job.MaxRuntimeMinutes);
-            }
-            finally
-            {
-                RcloneMutex.ReleaseMutex();
-            }
+                            try
+                            {
+                                var scriptPath = Path.Combine(System.AppContext.BaseDirectory, "scripts", $"rclone_pull_{job.Name}.bat");
+                                if (!File.Exists(scriptPath))
+                                {
+                                    onOutput($"Error: Script not found at {scriptPath}");
+                                    return;
+                                }
+            
+                                await ExecuteProcessAsync(job.Name, scriptPath, "", onOutput, job.MaxRuntimeMinutes);
+                            }
+                            finally
+                            {
+                                RcloneMutex.ReleaseMutex();
+                            }
         }
 
         public void StopJob(string jobName)
@@ -60,27 +60,27 @@ namespace RcloneQBController.Services
                 return;
             }
 
-            try
-            {
-                var scriptPath = Path.Combine(System.AppContext.BaseDirectory, "scripts", "qb_cleanup_ratio.ps1");
-                if (!File.Exists(scriptPath))
-                {
-                    onOutput($"Error: Script not found at {scriptPath}");
-                    return;
-                }
-
-                var arguments = new StringBuilder($"-ExecutionPolicy Bypass -File \"{scriptPath}\"");
-                if (isDryRun)
-                {
-                    arguments.Append(" -DryRun");
-                }
-
-                await ExecuteProcessAsync("cleanup", "powershell.exe", arguments.ToString(), onOutput, 0);
-            }
-            finally
-            {
-                CleanupMutex.ReleaseMutex();
-            }
+                            try
+                            {
+                                var scriptPath = Path.Combine(System.AppContext.BaseDirectory, "scripts", "qb_cleanup_ratio.ps1");
+                                if (!File.Exists(scriptPath))
+                                {
+                                    onOutput($"Error: Script not found at {scriptPath}");
+                                    return;
+                                }
+            
+                                var arguments = new StringBuilder($"-ExecutionPolicy Bypass -File \"{scriptPath}\"");
+                                if (isDryRun)
+                                {
+                                    arguments.Append(" -DryRun");
+                                }
+            
+                                await ExecuteProcessAsync("cleanup", "powershell.exe", arguments.ToString(), onOutput, 0);
+                            }
+                            finally
+                            {
+                                CleanupMutex.ReleaseMutex();
+                            }
         }
 
         private async Task ExecuteProcessAsync(string jobName, string fileName, string arguments, Action<string> onOutput, int timeoutMinutes)

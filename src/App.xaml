@@ -11,8 +11,35 @@
             <Setter Property="Margin" Value="5,0,0,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="ToolTipService.ShowDuration" Value="30000"/>
-            <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
-        </Style>
+                        <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+                    </Style>
+                    <Style x:Key="TextBoxHintStyle" TargetType="TextBox">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TextBox">
+                                    <Grid>
+                                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                                        <TextBlock Text="{TemplateBinding Tag}" Foreground="Gray" VerticalAlignment="Center" Margin="5,0,0,0" IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value=""/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
         <DataTemplate DataType="{x:Type viewModels:RcloneInstallViewModel}">
             <views:RcloneInstallView/>
         </DataTemplate>

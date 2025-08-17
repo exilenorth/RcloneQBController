@@ -9,7 +9,18 @@ namespace RcloneQBController.Views
     {
         public SetupWizardWindow()
         {
-            InitializeComponent();
+                        InitializeComponent();
+                        DataContextChanged += (s, e) =>
+                        {
+                            if (e.NewValue is ViewModels.SetupWizardViewModel vm)
+                            {
+                                vm.RequestClose += (success) =>
+                                {
+                                    DialogResult = success;
+                                    Close();
+                                };
+                            }
+                        };
         }
     }
 }

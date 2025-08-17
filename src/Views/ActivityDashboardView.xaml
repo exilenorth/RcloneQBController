@@ -31,25 +31,7 @@
            </DataGrid.Columns>
        </DataGrid>
 
-       <Grid Grid.Row="1" Margin="5">
-           <TextBlock Text="Type to filter log..." Foreground="Gray" VerticalAlignment="Center" Margin="5,0,0,0">
-               <TextBlock.Style>
-                   <Style TargetType="TextBlock">
-                       <Setter Property="Visibility" Value="Collapsed"/>
-                       <Style.Triggers>
-                           <MultiDataTrigger>
-                               <MultiDataTrigger.Conditions>
-                                   <Condition Binding="{Binding Text, ElementName=LogFilterTextBox}" Value=""/>
-                                   <Condition Binding="{Binding IsFocused, ElementName=LogFilterTextBox}" Value="False"/>
-                               </MultiDataTrigger.Conditions>
-                               <Setter Property="Visibility" Value="Visible"/>
-                           </MultiDataTrigger>
-                       </Style.Triggers>
-                   </Style>
-               </TextBlock.Style>
-           </TextBlock>
-           <TextBox x:Name="LogFilterTextBox" Text="{Binding LogFilterText, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" VerticalAlignment="Center" />
-       </Grid>
+               <TextBox Grid.Row="1" Text="{Binding LogFilterText, UpdateSourceTrigger=PropertyChanged}" Tag="Type to filter log..." Style="{StaticResource TextBoxHintStyle}" Margin="5" />
        <DataGrid Grid.Row="2" ItemsSource="{Binding LogEntries}" AutoGenerateColumns="False" HeadersVisibility="Column" IsReadOnly="True">
            <DataGrid.Columns>
                <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" Width="80" />

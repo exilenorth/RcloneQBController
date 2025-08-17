@@ -68,8 +68,15 @@ namespace RcloneQBController.ViewModels
             {
                 if (job is RcloneJobConfig rcloneJob)
                 {
-                    var command = _scriptGenerationService.GetPreviewCommand(rcloneJob);
-                    MessageBox.Show(command, "Preview Command");
+                                        try
+                                        {
+                                            var command = _scriptGenerationService.GetPreviewCommand(rcloneJob);
+                                            MessageBox.Show(command, "Preview Command");
+                                        }
+                                        catch (System.IO.FileNotFoundException ex)
+                                        {
+                                            MessageBox.Show($"Could not generate preview.\n\nDetails: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }
                 }
             });
         }

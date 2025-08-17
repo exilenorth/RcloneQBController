@@ -26,6 +26,9 @@ The application relies on a central `config.json` file for all its settings. The
 
 ```json
 {
+  "app_settings": {
+    "log_retention_days": 14
+  },
   "rclone": {
     "rclone_path": "C:\\Rclone\\rclone.exe",
     "remote_name": "seedbox",

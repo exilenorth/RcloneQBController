@@ -26,7 +26,7 @@ The RcloneQBController is a Windows Presentation Foundation (WPF) desktop applic
 *   **ConfigurationService:** A singleton service responsible for loading, parsing, validating, and saving the `config.json` file.
 *   **ScriptRunnerService:** Manages the execution of the `rclone` and `qBittorrent` scripts in separate processes. It will be responsible for starting, stopping, and monitoring these processes.
 *   **SchedulingService:** Handles the automated execution of scripts based on the schedule defined in the configuration. It will use the `ScriptRunnerService` to perform the execution.
-*   **SetupWizardService:** A dedicated service that manages the logic and state of the first-time setup wizard. It will be responsible for detecting if the wizard needs to be run, controlling the flow between steps, and executing the necessary `rclone` commands for configuration.
+*   **SetupWizardViewModel:** The data context for the `SetupWizardWindow`. It manages the overall state and flow of the setup wizards, with each step being represented by its own ViewModel.
 
 ### 2.3. Project Structure
 The project will follow the Model-View-ViewModel (MVVM) design pattern to ensure a clean separation of concerns.
@@ -51,10 +51,9 @@ The project will follow the Model-View-ViewModel (MVVM) design pattern to ensure
 |   |-- ConfigurationService.cs
 |   |-- ScriptRunnerService.cs
 |   |-- SchedulingService.cs
-|   |-- SetupWizardService.cs
-|-- /Resources
+|-- /script_templates
 |   |-- rclone_pull_media.bat.template
-|   |-- qb_cleanup_ratio.ps1
+|   |-- qb_cleanup_ratio.ps1.template
 |-- App.xaml
 |-- App.xaml.cs
 ```
@@ -62,7 +61,13 @@ The project will follow the Model-View-ViewModel (MVVM) design pattern to ensure
 ## 3. Detailed Feature Specifications
 
 ### 3.1. Script Control & Scheduling
-The UI will feature buttons to manually start and stop each script. A "Preview Command" button will also be available for each rclone job. Clicking this button will display a modal window showing the exact `rclone` command that will be executed, including all paths and flags. This allows advanced users to verify the command before running it. The `MainViewModel` will command the `ScriptRunnerService` to launch the appropriate script (`.bat` or `.ps1`) as a separate process. The `SchedulingService` will use a robust mechanism to trigger the `ScriptRunnerService` based on the `schedule.pull_every_minutes` setting in `config.json`.
+The UI will feature buttons to manually start and stop each script. A "Preview Command" button is available for each rclone job, and a "Dry Run" option is available for the qBittorrent cleanup script.
+
+*   **Stop Job:** The UI dynamically changes the "Run Now" button to a "Stop" button for any active job. The `ScriptRunnerService` can terminate a running process by its job name.
+*   **Dry Run:** This allows users to preview the cleanup script's actions without deleting any files.
+*   **Preview Command:** Clicking this button displays the exact `rclone` command that will be executed.
+
+The `MainViewModel` commands the `ScriptRunnerService` to launch the appropriate script as a separate process. The `SchedulingService` uses a robust mechanism to trigger the `ScriptRunnerService` based on the `schedule.pull_every_minutes` setting in `config.json`.
 
 To prevent overlapping executions, the `ScriptRunnerService` will implement a single-instance guard for each script type using a `Mutex`. Before initiating a new script run, the service will check the mutex. If a script is already running, the new execution request will be ignored. The service will also include logic to handle "catch-up" runs after the system wakes from sleep.
 
@@ -347,10 +352,10 @@ graph TD
     *   Buttons to "Add", "Edit", and "Remove" jobs.
 *   **Default Jobs:** The wizard will pre-populate two default jobs: "TV Shows" and "Movies".
     *   **TV Shows:**
-        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/TV` (The `{username}` is automatically populated from the value entered in Step 2 and updates dynamically if the user navigates backward to change it).
+        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/TV` (The `{username}` is automatically and dynamically populated from the value entered in the "Seedbox Connection" step).
         *   **Destination:** A browseable local path (e.g., `D:\Media\TV`).
     *   **Movies:**
-        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/Movies` (The `{username}` is automatically populated from the value entered in Step 2 and updates dynamically if the user navigates backward to change it).
+        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/Movies` (The `{username}` is automatically and dynamically populated from the value entered in the "Seedbox Connection" step).
         *   **Destination:** A browseable local path (e.g., `D:\Media\Movies`).
 *   **Action:** The user can modify, remove, or add to these jobs as needed. The final list of jobs will be saved to the `rclone.jobs` array in `config.json`.
 
@@ -492,7 +497,7 @@ The `rclone_pull_media.bat` script will be generated from the `script_templates/
 
 ### 7.2. `qb_cleanup_ratio.ps1` Generation & Execution
 
-The application will write the embedded `qb_cleanup_ratio.ps1` script to the `scripts` directory. The script is designed to be self-contained and reads its entire configuration from `config.json` at runtime.
+The application will deploy the `qb_cleanup_ratio.ps1` script by copying it from the `script_templates` directory to the `scripts` directory. The script is designed to be self-contained and reads its entire configuration from `config.json` at runtime.
 
 *   **Connection Details:** It will read `qbittorrent.protocol`, `host`, `port`, and `base_path`.
 *   **Credentials:** It will read `qbittorrent.username` and use the `password_ref` to look up the password from the Windows Credential Manager.

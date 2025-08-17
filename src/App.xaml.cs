@@ -16,13 +16,23 @@ namespace RcloneQBController
             var configPath = Path.Combine(Directory.GetCurrentDirectory(), "config.json");
             if (!File.Exists(configPath))
             {
-                var wizard = new SetupWizardWindow();
-                wizard.DataContext = new RcloneQBController.ViewModels.SetupWizardViewModel();
-                wizard.ShowDialog();
-            }
-
-            var mainWindow = new MainWindow();
-            mainWindow.Show();
+                                var wizard = new SetupWizardWindow();
+                                wizard.DataContext = new RcloneQBController.ViewModels.SetupWizardViewModel();
+                                if (wizard.ShowDialog() == true)
+                                {
+                                    var mainWindow = new MainWindow();
+                                    mainWindow.Show();
+                                }
+                                else
+                                {
+                                    Shutdown();
+                                }
+                            }
+                            else
+                            {
+                                var mainWindow = new MainWindow();
+                                mainWindow.Show();
+                            }
         }
     }
 }

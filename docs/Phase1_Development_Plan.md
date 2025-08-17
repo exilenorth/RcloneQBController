@@ -13,7 +13,7 @@ This document outlines the specific, actionable technical steps required to comp
 
 2.  **Create WPF Project:**
     *   Create a new WPF Project file named `src/RcloneQBController.csproj`.
-    *   Set the `TargetFramework` property in the `.csproj` file to `net8.0-windows`.
+    *   Set the `TargetFramework` property in the `.csproj` file to `net9.0-windows`.
 
 3.  **Establish Directory Structure:**
     *   Create the `script_templates/` directory in the project root to store script blueprints.

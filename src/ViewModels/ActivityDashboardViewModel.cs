@@ -53,24 +53,33 @@ namespace RcloneQBController.ViewModels
         {
             if (string.IsNullOrEmpty(output)) return;
 
-            try
-            {
-                var rcloneLog = JsonSerializer.Deserialize<RcloneLogEntry>(output);
-                if (rcloneLog != null && rcloneLog.Stats != null)
-                {
-                    UpdateFileTransfers(rcloneLog);
-                }
-                else if (rcloneLog != null)
-                {
-                    App.Current.Dispatcher.Invoke(() =>
-                    _logEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = rcloneLog.Message, Level = ParseLogLevel(rcloneLog.Level) }));
-                }
-            }
-            catch (JsonException)
-            {
-                 App.Current.Dispatcher.Invoke(() =>
-                _logEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = output, Level = ParseLogLevel(output) }));
-            }
+                        if (output.Trim().StartsWith("{"))
+                        {
+                            try
+                            {
+                                var rcloneLog = JsonSerializer.Deserialize<RcloneLogEntry>(output);
+                                if (rcloneLog != null && rcloneLog.Stats != null)
+                                {
+                                    UpdateFileTransfers(rcloneLog);
+                                }
+                                else if (rcloneLog != null)
+                                {
+                                    App.Current.Dispatcher.Invoke(() =>
+                                    _logEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = rcloneLog.Message, Level = ParseLogLevel(rcloneLog.Level) }));
+                                }
+                            }
+                            catch (JsonException)
+                            {
+                                // Not a valid rclone JSON log entry, treat as plain text
+                                App.Current.Dispatcher.Invoke(() =>
+                                _logEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = output, Level = ParseLogLevel(output) }));
+                            }
+                        }
+                        else
+                        {
+                            App.Current.Dispatcher.Invoke(() =>
+                            _logEntries.Add(new LogEntry { Timestamp = DateTime.Now, Message = output, Level = ParseLogLevel(output) }));
+                        }
         }
 
         private LogLevel ParseLogLevel(string text)
@@ -84,27 +93,28 @@ namespace RcloneQBController.ViewModels
 
         private void UpdateFileTransfers(RcloneLogEntry log)
         {
-            // This is a simplified approach. A more robust implementation would
-            // track individual files based on their names.
-            if (log.Stats.Transfers > 0)
-            {
-                var transfer = FileTransfers.FirstOrDefault();
-                if (transfer == null)
-                {
-                    transfer = new FileTransfer { FileName = "Overall Progress" };
-                    FileTransfers.Add(transfer);
-                }
-
-                transfer.Size = log.Stats.TotalBytes;
-                if (log.Stats.TotalBytes > 0)
-                {
-                    transfer.Progress = (double)log.Stats.Bytes / log.Stats.TotalBytes * 100;
-                }
-                else
-                {
-                    transfer.Progress = 0;
-                }
-            }
+                                    if (log.Stats?.Transferring != null)
+                                    {
+                                        foreach (var transferringFile in log.Stats.Transferring)
+                                        {
+                                            var transfer = FileTransfers.FirstOrDefault(t => t.FileName == transferringFile.Name);
+                                            if (transfer == null)
+                                            {
+                                                transfer = new FileTransfer { FileName = transferringFile.Name };
+                                                App.Current.Dispatcher.Invoke(() => FileTransfers.Add(transfer));
+                                            }
+                        
+                                            transfer.Size = transferringFile.Size;
+                                            if (transferringFile.Size > 0)
+                                            {
+                                                transfer.Progress = (double)transferringFile.Bytes / transferringFile.Size * 100;
+                                            }
+                                            else
+                                            {
+                                                transfer.Progress = 0;
+                                            }
+                                        }
+                                    }
         }
         public event PropertyChangedEventHandler PropertyChanged;
 
