@@ -29,6 +29,24 @@ namespace RcloneQBController.ViewModels
             RemoveJobCommand = new RelayCommand(RemoveJob, CanEditOrRemoveJob);
         }
 
+        public void UpdateDefaultPaths(string newUsername)
+        {
+            if (Jobs != null)
+            {
+                var tvJob = Jobs.FirstOrDefault(j => j.Name == "TV Shows");
+                if (tvJob != null)
+                {
+                    tvJob.SourcePath = $"/home/{newUsername}/torrents/qbittorrent/Media/TV";
+                }
+
+                var moviesJob = Jobs.FirstOrDefault(j => j.Name == "Movies");
+                if (moviesJob != null)
+                {
+                    moviesJob.SourcePath = $"/home/{newUsername}/torrents/qbittorrent/Media/Movies";
+                }
+            }
+        }
+
         private void AddJob(object parameter)
         {
             // Logic to open a dialog and add a new job

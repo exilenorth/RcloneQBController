@@ -59,10 +59,9 @@ namespace RcloneQBController.ViewModels
         {
             if (CanGoToNextStep(parameter))
             {
-                if (CurrentStepViewModel is SeedboxConnectionViewModel seedboxVM)
+                if (CurrentStepViewModel is SeedboxConnectionViewModel seedboxVM && _steps[_currentStepIndex + 1] is TransferJobViewModel transferJobVM)
                 {
-                    var sourcePath = $"/home/{seedboxVM.Username}/torrents/qbittorrent";
-                    _steps[_currentStepIndex + 1] = new TransferJobViewModel(sourcePath);
+                    transferJobVM.UpdateDefaultPaths(seedboxVM.Username);
                 }
 
                 _currentStepIndex++;
@@ -146,7 +145,14 @@ namespace RcloneQBController.ViewModels
 
             ConfigurationService.Instance.SaveConfig(config);
             var scriptService = new ScriptGenerationService(ConfigurationService.Instance);
-            scriptService.GenerateScripts(config);
+            try
+            {
+                scriptService.GenerateScripts(config);
+            }
+            catch (System.IO.FileNotFoundException ex)
+            {
+                System.Windows.MessageBox.Show($"A script template file is missing and the scripts could not be generated.\n\nDetails: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
 
             // Logic to close the wizard window
             // This is typically handled by the View, e.g., closing the window

@@ -73,7 +73,7 @@ To prevent runaway scripts, the `ScriptRunnerService` will enforce a maximum run
 *   If the script process has not exited when the timer elapses, the service will forcefully terminate the process and log a timeout error. This prevents stalled jobs from consuming system resources indefinitely.
 
 ### 3.2. Graphical Activity Dashboard
-The application will feature a two-part graphical dashboard to provide a rich, real-time view of script activity, replacing the previous plain-text console view. The UI provides clear visual feedback for running jobs, such as progress bars and status icons. Controls are logically grouped for intuitive operation. After a job completes, the relevant UI sections are cleared to prepare for the next operation.
+The application will feature a two-part graphical dashboard to provide a rich, real-time view of script activity, replacing the previous plain-text console view. The UI provides clear visual feedback for running jobs, such as progress bars and status icons. Controls are logically grouped for intuitive operation. After a job completes, the relevant UI sections are cleared to prepare for the next operation. A new, simplified `UserControl` for the main screen's qBittorrent task has been created to provide a consistent UI between the Rclone and qBittorrent sections.
 
 **Part 1: Graphical Log View**
 A rich, filterable `DataGrid` will display log entries from all script activity.
@@ -347,10 +347,10 @@ graph TD
     *   Buttons to "Add", "Edit", and "Remove" jobs.
 *   **Default Jobs:** The wizard will pre-populate two default jobs: "TV Shows" and "Movies".
     *   **TV Shows:**
-        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/TV` (The `{username}` is automatically populated from the value entered in Step 2).
+        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/TV` (The `{username}` is automatically populated from the value entered in Step 2 and updates dynamically if the user navigates backward to change it).
         *   **Destination:** A browseable local path (e.g., `D:\Media\TV`).
     *   **Movies:**
-        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/Movies` (The `{username}` is automatically populated from the value entered in Step 2).
+        *   **Source:** `/home/{username}/torrents/qbittorrent/Media/Movies` (The `{username}` is automatically populated from the value entered in Step 2 and updates dynamically if the user navigates backward to change it).
         *   **Destination:** A browseable local path (e.g., `D:\Media\Movies`).
 *   **Action:** The user can modify, remove, or add to these jobs as needed. The final list of jobs will be saved to the `rclone.jobs` array in `config.json`.
 

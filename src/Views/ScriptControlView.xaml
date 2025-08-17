@@ -56,7 +56,7 @@
                 </ListView>
             </Expander>
             <Expander Header="qBittorrent Tasks" IsExpanded="True">
-                <ContentControl Content="{Binding Qbittorrent}" />
+                <local:QbittorrentControlView DataContext="{Binding Qbittorrent}" />
             </Expander>
         </StackPanel>
     </Grid>
