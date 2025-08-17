@@ -7,38 +7,57 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="300">
     <Grid>
-        <ListView ItemsSource="{Binding Jobs}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel.Style>
-                            <Style TargetType="StackPanel">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                        <Setter Property="Background" Value="LightBlue" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </StackPanel.Style>
-                        <TextBlock Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <Button CommandParameter="{Binding}" Margin="0,0,5,0">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Content" Value="Run Now" />
-                                    <Setter Property="Command" Value="{Binding DataContext.RunJobCommand, RelativeSource={RelativeSource AncestorType=ListView}}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                            <Setter Property="Content" Value="Stop" />
-                                            <Setter Property="Command" Value="{Binding DataContext.StopJobCommand, RelativeSource={RelativeSource AncestorType=ListView}}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        <Button Content="Preview" Command="{Binding DataContext.PreviewCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <StackPanel>
+            <Expander Header="Rclone Jobs" IsExpanded="True">
+                <ListView ItemsSource="{Binding Jobs}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                <Setter Property="Background" Value="LightBlue" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <ProgressBar IsIndeterminate="True" Width="16" Height="16" Margin="0,0,5,0">
+                                    <ProgressBar.Style>
+                                        <Style TargetType="ProgressBar">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ProgressBar.Style>
+                                </ProgressBar>
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Button CommandParameter="{Binding}" Margin="0,0,5,0">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Content" Value="Run Now" />
+                                            <Setter Property="Command" Value="{Binding DataContext.RunJobCommand, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                    <Setter Property="Content" Value="Stop" />
+                                                    <Setter Property="Command" Value="{Binding DataContext.StopJobCommand, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Content="Preview" Command="{Binding DataContext.PreviewCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Expander>
+            <Expander Header="qBittorrent Tasks" IsExpanded="True">
+                <ContentControl Content="{Binding Qbittorrent}" />
+            </Expander>
+        </StackPanel>
     </Grid>
 </UserControl>

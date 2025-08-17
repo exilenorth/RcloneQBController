@@ -52,6 +52,7 @@ namespace RcloneQBController.ViewModels
                         });
                     });
                     rcloneJob.IsRunning = false;
+                    ActivityDashboard.FileTransfers.Clear();
                 }
             });
 

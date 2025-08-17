@@ -13,12 +13,15 @@ namespace RcloneQBController.ViewModels
         public ICommand EditJobCommand { get; }
         public ICommand RemoveJobCommand { get; }
 
-        public TransferJobViewModel()
+        public TransferJobViewModel(string? defaultSourcePath = null)
         {
+            var tvSourcePath = !string.IsNullOrEmpty(defaultSourcePath) ? $"{defaultSourcePath}/Media/TV" : "/home/user/torrents/qbittorrent/Media/TV";
+            var moviesSourcePath = !string.IsNullOrEmpty(defaultSourcePath) ? $"{defaultSourcePath}/Media/Movies" : "/home/user/torrents/qbittorrent/Media/Movies";
+
             Jobs = new ObservableCollection<RcloneJobConfig>
             {
-                new RcloneJobConfig { Name = "TV Shows", SourcePath = "/home/user/torrents/qbittorrent/Media/TV", DestPath = "D:\\Media\\TV" },
-                new RcloneJobConfig { Name = "Movies", SourcePath = "/home/user/torrents/qbittorrent/Media/Movies", DestPath = "D:\\Media\\Movies" }
+                new RcloneJobConfig { Name = "TV Shows", SourcePath = tvSourcePath, DestPath = "D:\\Media\\TV" },
+                new RcloneJobConfig { Name = "Movies", SourcePath = moviesSourcePath, DestPath = "D:\\Media\\Movies" }
             };
 
             AddJobCommand = new RelayCommand(AddJob);

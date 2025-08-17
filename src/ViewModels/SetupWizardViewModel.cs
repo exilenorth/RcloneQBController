@@ -59,6 +59,12 @@ namespace RcloneQBController.ViewModels
         {
             if (CanGoToNextStep(parameter))
             {
+                if (CurrentStepViewModel is SeedboxConnectionViewModel seedboxVM)
+                {
+                    var sourcePath = $"/home/{seedboxVM.Username}/torrents/qbittorrent";
+                    _steps[_currentStepIndex + 1] = new TransferJobViewModel(sourcePath);
+                }
+
                 _currentStepIndex++;
                 CurrentStepViewModel = _steps[_currentStepIndex];
             }
