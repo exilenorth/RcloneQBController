@@ -71,6 +71,10 @@ graph TD
 
 The setup wizards will be presented in a clean, focused modal window that guides the user step-by-step.
 
+*   **Welcome Screen:**
+    *   The initial screen of the setup wizard, providing a brief introduction to the application and its purpose.
+    *   Includes a prominent "Get Started" button to initiate the configuration process.
+
 *   **Layout:**
     *   A single-column layout with clear instructions at the top of each step.
     *   UI controls (text boxes, radio buttons, etc.) will be logically grouped.
@@ -113,14 +117,25 @@ graph TD
 
 ### 5.1. Initial Setup Flow
 
+```mermaid
+graph TD
+    A[Launch Application] --> B{First Time User?};
+    B -- Yes --> C[Display Welcome Screen];
+    C --> D[Rclone Setup Wizard];
+    D --> E[qBittorrent Setup Wizard];
+    E --> F[Main Application Window];
+    B -- No --> F;
+```
+
 1.  **Launch:** User opens the application for the first time.
-2.  **Wizard Trigger:** The application detects no `config.json` and launches the Rclone Setup Wizard.
-3.  **Step-by-Step Configuration:** The user proceeds through the wizard, providing Rclone installation status, seedbox details, and folder paths.
-4.  **Connection Test:** The user tests the connection. Upon success, the configuration is saved.
-5.  **qB Wizard:** The qB Cleanup Setup Wizard starts automatically.
-6.  **Guided Setup:** The user is guided through VPN/qB configuration, with the application attempting to auto-detect settings where possible.
-7.  **Final Test & Script Generation:** A final end-to-end test is performed. On success, the helper scripts are generated.
-8.  **Main Application:** The wizard closes, and the main application window opens, now fully configured and ready for use.
+2.  **Welcome Screen:** The "Welcome" screen is displayed, introducing the application.
+3.  **Wizard Trigger:** Upon clicking "Get Started" (or similar), the application detects no `config.json` and launches the Rclone Setup Wizard.
+4.  **Step-by-Step Configuration:** The user proceeds through the wizard, providing Rclone installation status, seedbox details, and folder paths.
+5.  **Connection Test:** The user tests the connection. Upon success, the configuration is saved.
+6.  **qB Wizard:** The qB Cleanup Setup Wizard starts automatically.
+7.  **Guided Setup:** The user is guided through VPN/qB configuration, with the application attempting to auto-detect settings where possible.
+8.  **Final Test & Script Generation:** A final end-to-end test is performed. On success, the helper scripts are generated.
+9.  **Main Application:** The wizard closes, and the main application window opens, now fully configured and ready for use.
 
 ### 5.2. Day-to-Day Interaction Flow
 
