@@ -10,9 +10,10 @@
         <ListView ItemsSource="{Binding Jobs}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Name}" FontWeight="Bold" />
-                        <Button Content="Run Now" Command="{Binding DataContext.RunJobCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Button Content="Run Now" Command="{Binding DataContext.RunJobCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding}" Margin="0,0,5,0" />
+                        <Button Content="Preview" Command="{Binding DataContext.PreviewCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding}" />
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>

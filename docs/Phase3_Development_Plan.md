@@ -75,3 +75,19 @@ The use of `ObservableCollection` will ensure that the UI is automatically updat
 The goal of this phase is to commit all the above work under a single, comprehensive feature commit.
 
 **Commit Message:** `feat: Implement main window UI and graphical script execution dashboard`
+
+## 5. Preview Command Feature
+
+As a logical extension of the script execution work, a "Preview Command" feature has been implemented to allow users to see the generated command before running it.
+
+### 5.1. `ScriptGenerationService.cs` Update
+
+A new public method `GetPreviewCommand(Job job)` was added. This method takes a `Job` object, reads the appropriate `.template` file, replaces the placeholders, and returns the resulting command as a string.
+
+### 5.2. `MainViewModel.cs` Update
+
+A new `RelayCommand` property named `PreviewCommand` was created. It calls the `GetPreviewCommand` method and displays the returned command string in a `MessageBox`.
+
+### 5.3. `ScriptControlView.xaml` Update
+
+A "Preview" button was added to the UI for each script job, next to the "Run Now" button. This button is bound to the `PreviewCommand` in the `MainViewModel`.

@@ -139,7 +139,7 @@ namespace RcloneQBController.ViewModels
             };
 
             ConfigurationService.Instance.SaveConfig(config);
-            var scriptService = new ScriptGenerationService();
+            var scriptService = new ScriptGenerationService(ConfigurationService.Instance);
             scriptService.GenerateScripts(config);
 
             // Logic to close the wizard window

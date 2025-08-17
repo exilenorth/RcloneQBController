@@ -14,6 +14,7 @@ To create a reliable, background scheduling service that automatically triggers 
     *   `public void Start(Job job)`: This method will initialize and start a new timer for a specific job (e.g., an rclone pull task). The timer's interval will be dynamically set based on the `schedule.pull_every_minutes` value in `config.json`. The timer's callback delegate will be configured to invoke the `ScriptRunnerService`.
     *   `public void Stop(Job job)`: This method will find the corresponding active timer for the specified job and dispose of it, effectively stopping the schedule for that job.
 *   **Integration:** The `MainViewModel` will be responsible for calling the `Start` and `Stop` methods of the `SchedulingService` when the user enables or disables a job's schedule from the UI. The service will be registered as a singleton in the application's dependency injection container to ensure a single source of truth for all scheduled tasks.
+*   **Catch-Up Logic:** The `SchedulingService` will be updated to detect if the application was asleep when a run was scheduled. If a scheduled run is missed, the service will trigger an immediate "catch-up" run to ensure data synchronization is not delayed.
 
 ## 2. Settings Window
 
@@ -66,8 +67,18 @@ To provide clear, non-intrusive feedback to the user when background tasks (like
 *   **Integration:** The `ScriptRunnerService` will be updated. After a script process completes, the service will invoke a method that builds and displays a toast notification.
 *   **Notification Content:** The notification will clearly state which script has finished and whether it succeeded or failed, providing at-a-glance status information to the user even when the application window is not visible.
 
-## 6. Final Commit Point
+## 6. User-Friendly Error Handling
+
+### 6.1. Objective
+To abstract and simplify error reporting, presenting users with clear, actionable messages instead of technical exception details.
+
+### 6.2. Implementation Details
+*   **File Creation:** A new service, `UserNotifierService.cs`, will be created in the `/Services` directory.
+*   **Core Logic:** This service will contain a method (e.g., `ShowFriendlyError(Exception ex)`) that maps specific exception types (e.g., `IOException`, `InvalidOperationException`) to pre-defined, user-friendly strings sourced from `TECHNICAL_SPECIFICATION.md`.
+*   **Integration:** Key operations within services like `ScriptRunnerService` will be wrapped in `try-catch` blocks. The `catch` block will pass the exception to the `UserNotifierService` to handle the user-facing notification, ensuring consistent and helpful error feedback throughout the application.
+
+## 7. Final Commit Point
 
 Upon completion of all the features detailed in this plan, the work will be committed to the version control repository. The designated commit message for this body of work will be:
 
-`feat: Implement scheduling, settings, system tray, and all remaining features`
+`feat: Implement scheduling, settings, tray, and enhanced error handling`
