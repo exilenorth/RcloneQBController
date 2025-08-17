@@ -37,6 +37,7 @@ namespace RcloneQBController.ViewModels
         {
             _steps = new List<object>
             {
+                new WelcomeViewModel(),
                 new RcloneInstallViewModel(),
                 new SeedboxConnectionViewModel(),
                 new TransferJobViewModel(),

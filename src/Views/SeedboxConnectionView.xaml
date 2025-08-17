@@ -9,15 +9,36 @@
     <Grid Background="#2D2D30">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
             <TextBlock Text="Seedbox Connection Details" Foreground="#F1F1F1" FontSize="16" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-            <TextBlock Text="Hostname:" Foreground="#F1F1F1" Margin="0,5"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Hostname:" Foreground="#F1F1F1" Margin="0,5"/>
+                <TextBlock Style="{StaticResource InfoIconStyle}">
+                    <TextBlock.ToolTip>
+                        <ToolTip>This is the address of your seedbox server (e.g., `server.seedbox.com`). You can usually find this in your seedbox provider's welcome email.</ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
-            <TextBlock Text="Port:" Foreground="#F1F1F1" Margin="0,5"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Port:" Foreground="#F1F1F1" Margin="0,5"/>
+                <TextBlock Style="{StaticResource InfoIconStyle}">
+                    <TextBlock.ToolTip>
+                        <ToolTip>This is the specific 'door' on your seedbox server that this application needs to connect to. It's usually a number like 22 for SFTP. Check your seedbox provider's documentation if you're unsure.</ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
             <TextBlock Text="Username:" Foreground="#F1F1F1" Margin="0,5"/>
             <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
             <TextBlock Text="Password:" Foreground="#F1F1F1" Margin="0,5"/>
             <PasswordBox Name="PasswordBox" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
-            <TextBlock Text="Remote Name:" Foreground="#F1F1F1" Margin="0,5"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Remote Name:" Foreground="#F1F1F1" Margin="0,5"/>
+                <TextBlock Style="{StaticResource InfoIconStyle}">
+                    <TextBlock.ToolTip>
+                        <ToolTip>This is a nickname you give to your seedbox configuration in Rclone (e.g., `my-seedbox`). It helps you identify this connection later.</ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <TextBox Text="{Binding RemoteName}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
             <Button Content="Test Connection" Command="{Binding TestConnectionCommand}" Width="150" Margin="0,15,0,0" HorizontalAlignment="Center" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0"/>
         </StackPanel>

@@ -12,8 +12,40 @@
             <DataGrid ItemsSource="{Binding Jobs}" AutoGenerateColumns="False" CanUserAddRows="False" Background="#3E3E42" Foreground="#F1F1F1" BorderBrush="#3E3E42">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Job Name" Binding="{Binding Name}" Width="*"/>
-                    <DataGridTextColumn Header="Source Path (Remote)" Binding="{Binding SourcePath}" Width="2*"/>
-                    <DataGridTextColumn Header="Destination Path (Local)" Binding="{Binding DestPath}" Width="2*"/>
+                    <DataGridTemplateColumn Width="2*">
+                        <DataGridTemplateColumn.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Source Path (Remote)"/>
+                                <TextBlock Style="{StaticResource InfoIconStyle}">
+                                    <TextBlock.ToolTip>
+                                        <ToolTip>This is the folder on your seedbox where the files you want to transfer are located (e.g., `/home/user/downloads`).</ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding SourcePath}" VerticalAlignment="Center" Margin="4,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="2*">
+                        <DataGridTemplateColumn.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Destination Path (Local)"/>
+                                <TextBlock Style="{StaticResource InfoIconStyle}">
+                                    <TextBlock.ToolTip>
+                                        <ToolTip>This is the folder on your computer where you want to save the transferred files (e.g., `C:\Users\YourName\Downloads`).</ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DestPath}" VerticalAlignment="Center" Margin="4,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">

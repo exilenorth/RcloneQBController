@@ -5,8 +5,16 @@
              xmlns:viewModels="clr-namespace:RcloneQBController.ViewModels"
              xmlns:views="clr-namespace:RcloneQBController.Views">
    <Application.Resources>
-       <DataTemplate DataType="{x:Type viewModels:RcloneInstallViewModel}">
-           <views:RcloneInstallView/>
+        <Style x:Key="InfoIconStyle" TargetType="TextBlock">
+            <Setter Property="Text" Value="&#x24D8;"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="ToolTipService.ShowDuration" Value="30000"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+        </Style>
+        <DataTemplate DataType="{x:Type viewModels:RcloneInstallViewModel}">
+            <views:RcloneInstallView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewModels:SeedboxConnectionViewModel}">
             <views:SeedboxConnectionView/>
@@ -25,6 +33,6 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewModels:CleanupSummaryViewModel}">
             <views:CleanupSummaryView/>
-        </DataTemplate>
+        </Data_Template>
     </Application.Resources>
 </Application>

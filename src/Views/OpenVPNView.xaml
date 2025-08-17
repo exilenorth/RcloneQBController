@@ -18,7 +18,14 @@
                     <TextBlock Text="Go to OpenVPN download page" Foreground="#007ACC"/>
                 </Hyperlink>
             </TextBlock>
-            <TextBlock Text="Please select your .ovpn configuration file:" Foreground="#F1F1F1" Margin="0,15,0,5"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Please select your .ovpn configuration file:" Foreground="#F1F1F1" Margin="0,15,0,5"/>
+                <TextBlock Style="{StaticResource InfoIconStyle}" Margin="5,15,0,5">
+                    <TextBlock.ToolTip>
+                        <ToolTip>This is a file provided by your VPN service that contains the settings needed to connect to their servers. You can usually download it from your VPN provider's website.</ToolTip>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+            </StackPanel>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

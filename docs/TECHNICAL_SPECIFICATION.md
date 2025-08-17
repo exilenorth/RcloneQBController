@@ -42,9 +42,11 @@ The project will follow the Model-View-ViewModel (MVVM) design pattern to ensure
 |-- /ViewModels
 |   |-- MainViewModel.cs
 |   |-- SettingsViewModel.cs
+|   |-- WelcomeViewModel.cs
 |-- /Views
 |   |-- MainWindow.xaml
 |   |-- SettingsWindow.xaml
+|   |-- WelcomeView.xaml
 |-- /Services
 |   |-- ConfigurationService.cs
 |   |-- ScriptRunnerService.cs
