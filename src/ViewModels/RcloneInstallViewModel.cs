@@ -9,6 +9,17 @@ namespace RcloneQBController.ViewModels
     {
         private bool _isRcloneInstalled;
         private string? _rclonePath;
+        private bool _userConfirmedInstall;
+
+        public bool UserConfirmedInstall
+        {
+            get => _userConfirmedInstall;
+            set
+            {
+                _userConfirmedInstall = value;
+                OnPropertyChanged();
+            }
+        }
 
         public bool IsRcloneInstalled
         {

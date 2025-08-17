@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace RcloneQBController.ViewModels
 {
-    public class OpenVPNViewModel : INotifyPropertyChanged
+    public class OpenVPNViewModel : INotifyPropertyChanged, IDataErrorInfo
     {
         private string? _ovpnFilePath;
 
@@ -50,6 +50,23 @@ namespace RcloneQBController.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        // IDataErrorInfo Implementation
+        public string Error => string.Empty;
+
+        public string this[string columnName]
+        {
+            get
+            {
+                string? result = null;
+                if (columnName == nameof(OvpnFilePath))
+                {
+                    if (string.IsNullOrWhiteSpace(OvpnFilePath) || !File.Exists(OvpnFilePath))
+                        result = "Please select a valid .ovpn file.";
+                }
+                return result ?? string.Empty;
+            }
         }
     }
 }

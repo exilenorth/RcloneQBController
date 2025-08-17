@@ -1,0 +1,74 @@
+{
+  "app_settings": {
+    "log_retention_days": 14
+  },
+  "rclone": {
+    "rclone_path": "C:\\rclone\\rclone.exe",
+    "remote_name": "seedbox",
+    "log_dir": "logs",
+    "use_json_log": true,
+    "flags": {
+      "min_age": "5m",
+      "transfers": 6,
+      "checkers": 8,
+      "update": true
+    },
+    "jobs": [
+      {
+        "name": "tv",
+        "source_path": "/remote/tv",
+        "dest_path": "D:\\media\\tv",
+        "log": "rclone_tv",
+        "max_runtime_minutes": 60
+      },
+      {
+        "name": "movies",
+        "source_path": "/remote/movies",
+        "dest_path": "D:\\media\\movies",
+        "log": "rclone_movies",
+        "max_runtime_minutes": 120
+      }
+    ]
+  },
+  "seedbox": {
+    "host": "seedbox.example.com",
+    "port": 22,
+    "username": "user",
+    "auth": {
+      "method": "password",
+      "pass_obscured": "..."
+    }
+  },
+  "vpn": {
+    "config_file": "C:\\vpn\\config.ovpn",
+    "client_ip": "10.8.0.2"
+  },
+  "qbittorrent": {
+    "protocol": "http",
+    "host": "10.8.0.1",
+    "port": 8080,
+    "base_path": "",
+    "username": "admin",
+    "password_ref": ""
+  },
+  "cleanup": {
+    "categories": [],
+    "target_ratio": 2.0,
+    "hnr_minutes": 14400,
+    "min_age_minutes": 30,
+    "safe_states": [
+      "paused",
+      "stalledUP",
+      "error",
+      "missingFiles"
+    ],
+    "delete_mode": "torrent_and_files",
+    "log_dir": "logs",
+    "dated_logs": true
+  },
+  "schedule": {
+    "pull_every_minutes": 15,
+    "cleanup_offset_minutes": 5,
+    "only_when_logged_in": true
+  }
+}

@@ -11,11 +11,11 @@
             <TextBlock Text="qBittorrent Connection" Foreground="#F1F1F1" FontSize="16" Margin="0,0,0,10" HorizontalAlignment="Center"/>
             <Button Content="Find my VPN IP" Command="{Binding FindVpnIpCommand}" Width="150" Margin="0,5" HorizontalAlignment="Center" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0"/>
             <TextBlock Text="Host:" Foreground="#F1F1F1" Margin="0,5"/>
-            <TextBox Text="{Binding Host}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
+            <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
             <TextBlock Text="Port:" Foreground="#F1F1F1" Margin="0,5"/>
-            <TextBox Text="{Binding Port}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
+            <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
             <TextBlock Text="Username:" Foreground="#F1F1F1" Margin="0,5"/>
-            <TextBox Text="{Binding Username}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
+            <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
             <TextBlock Text="Password:" Foreground="#F1F1F1" Margin="0,5"/>
             <PasswordBox Name="PasswordBox" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
             <Button Content="Test Connection" Command="{Binding TestConnectionCommand}" Width="150" Margin="0,15,0,0" HorizontalAlignment="Center" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0"/>

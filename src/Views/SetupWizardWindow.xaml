@@ -14,10 +14,22 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ContentControl Grid.Row="0" Content="{Binding CurrentStepViewModel}" Margin="15"/>
+        <ContentPresenter Grid.Row="0" Content="{Binding CurrentStepViewModel}" Margin="15"/>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="15">
-            <Button Content="Back" Command="{Binding BackCommand}" Width="100" Margin="5" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
+            <Button Command="{Binding BackCommand}" Width="100" Margin="5" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsBackButtonVisible}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <TextBlock Text="Back" />
+            </Button>
             <Button Content="Next" Command="{Binding NextCommand}" Width="100" Margin="5" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0"/>
             <Button Content="Finish" Command="{Binding FinishCommand}" Width="100" Margin="5" Background="#388E3C" Foreground="#F1F1F1" BorderThickness="0"/>
         </StackPanel>
