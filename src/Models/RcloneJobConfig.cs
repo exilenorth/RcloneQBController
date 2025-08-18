@@ -17,9 +17,6 @@ namespace RcloneQBController.Models
         [JsonPropertyName("dest_path")]
         public string? DestPath { get; set; }
 
-        [JsonPropertyName("log")]
-        public string? Log { get; set; }
-
         [JsonPropertyName("max_runtime_minutes")]
         public int MaxRuntimeMinutes { get; set; }
 

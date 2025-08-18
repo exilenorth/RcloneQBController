@@ -13,7 +13,7 @@ namespace RcloneQBController.Services
     {
         private static readonly Mutex RcloneMutex = new Mutex(false, "RcloneQBController_Rclone");
         private static readonly Mutex CleanupMutex = new Mutex(false, "RcloneQBController_Cleanup");
-        private readonly Dictionary<string, Process> _runningProcesses = new Dictionary<string, Process>();
+        private readonly Dictionary<string, Process> _runningProcesses = new();
 
         public async Task RunRcloneJobAsync(RcloneJobConfig job, Action<string> onOutput)
         {
@@ -46,7 +46,8 @@ namespace RcloneQBController.Services
             {
                 if (!process.HasExited)
                 {
-                    process.Kill();
+                    process.Kill(entireProcessTree: true);
+                    process.WaitForExit();
                 }
                 _runningProcesses.Remove(jobName);
             }
@@ -109,34 +110,39 @@ namespace RcloneQBController.Services
                 if (args.Data != null) onOutput($"ERROR: {args.Data}");
             };
 
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-
-            if (timeoutMinutes > 0)
+            try
             {
-                using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(timeoutMinutes)))
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
+                if (timeoutMinutes > 0)
                 {
-                    try
+                    using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(timeoutMinutes)))
                     {
-                        await process.WaitForExitAsync(cts.Token);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        if (!process.HasExited)
+                        try
                         {
-                            process.Kill();
+                            await process.WaitForExitAsync(cts.Token);
                         }
-                        onOutput($"ERROR: Process timed out after {timeoutMinutes} minutes and was terminated.");
+                        catch (TaskCanceledException)
+                        {
+                            if (!process.HasExited)
+                            {
+                                process.Kill();
+                            }
+                            onOutput($"ERROR: Process timed out after {timeoutMinutes} minutes and was terminated.");
+                        }
                     }
                 }
+                else
+                {
+                    await process.WaitForExitAsync();
+                }
             }
-            else
+            finally
             {
-                await process.WaitForExitAsync();
+                _runningProcesses.Remove(jobName);
             }
-
-            _runningProcesses.Remove(jobName);
         }
     }
 }

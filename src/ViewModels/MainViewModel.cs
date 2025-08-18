@@ -90,7 +90,11 @@ namespace RcloneQBController.ViewModels
                 {
                     if (rcloneJob.IsScheduled)
                     {
-                        _schedulingService.Start(rcloneJob);
+                        var minutes = _config?.Schedule?.PullEveryMinutes > 0
+                            ? _config!.Schedule!.PullEveryMinutes
+                            : 15; // sensible default
+
+                        _schedulingService.Start(rcloneJob, System.TimeSpan.FromMinutes(minutes));
                     }
                     else
                     {

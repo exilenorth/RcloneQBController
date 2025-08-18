@@ -19,7 +19,5 @@ namespace RcloneQBController.Models
         [JsonPropertyName("username")]
         public string? Username { get; set; }
 
-        [JsonPropertyName("password_ref")]
-        public string? PasswordRef { get; set; }
     }
 }

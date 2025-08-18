@@ -8,7 +8,7 @@ namespace RcloneQBController.Services
 {
     public class SchedulingService
     {
-        private readonly Dictionary<string, Timer> _timers = new Dictionary<string, Timer>();
+        private readonly Dictionary<string, Timer> _timers = new();
         private readonly ScriptRunnerService _scriptRunnerService;
 
         public SchedulingService(ScriptRunnerService scriptRunnerService)
@@ -16,19 +16,14 @@ namespace RcloneQBController.Services
             _scriptRunnerService = scriptRunnerService;
         }
 
-        public void Start(RcloneJobConfig job)
+        public void Start(RcloneJobConfig job, TimeSpan interval)
         {
-            if (job.Name == null) return;
-
-            if (_timers.ContainsKey(job.Name))
-            {
-                return;
-            }
+            if (job.Name == null || _timers.ContainsKey(job.Name)) return;
 
             var timer = new Timer(async _ =>
             {
-                await _scriptRunnerService.RunRcloneJobAsync(job, (output) => { });
-            }, null, TimeSpan.Zero, TimeSpan.FromMinutes(job.MaxRuntimeMinutes));
+                await _scriptRunnerService.RunRcloneJobAsync(job, _ => { });
+            }, null, TimeSpan.Zero, interval);
 
             _timers[job.Name] = timer;
         }

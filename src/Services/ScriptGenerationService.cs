@@ -86,10 +86,15 @@ namespace RcloneQBController.Services
                         scriptContent.Replace("%%SOURCE_REMOTE%%", sourceRemotePath);
                         scriptContent.Replace("%%DEST_PATH%%", job.DestPath);
 
-                        var outputFileName = $"rclone_pull_{job.Name}.bat";
+                        var outputFileName = $"rclone_pull_{Sanitize(job.Name)}.bat";
                         var outputPath = Path.Combine(outputDirectory, outputFileName);
 
-                        File.WriteAllText(outputPath, scriptContent.ToString());
+                        scriptContent.Replace("rclone_pull.lock", $"rclone_pull_{Sanitize(job.Name)}.lock");
+
+                        var final = scriptContent.ToString();
+                        if (final.Contains("%%"))
+                            throw new System.InvalidOperationException("Template has unresolved placeholders.");
+                        File.WriteAllText(outputPath, final);
                     }
                 }
                 else
@@ -110,6 +115,13 @@ namespace RcloneQBController.Services
             {
                 throw new FileNotFoundException($"qBittorrent cleanup template file not found at: {qbTemplatePath}");
             }
+        }
+
+        private static string Sanitize(string name)
+        {
+            var invalid = Path.GetInvalidFileNameChars();
+            var safe = new string(name.Select(c => invalid.Contains(c) ? '_' : c).ToArray());
+            return safe.Replace(' ', '_').ToLowerInvariant();
         }
     }
 }

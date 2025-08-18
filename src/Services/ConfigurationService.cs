@@ -69,18 +69,20 @@ namespace RcloneQBController.Services
 
         private void PurgeOldLogs(AppConfig config)
         {
-            if (config?.AppSettings == null || config.Rclone?.LogDir == null) return;
+            if (config?.AppSettings == null) return;
 
-            var logDir = new DirectoryInfo(config.Rclone.LogDir);
-            if (!logDir.Exists) return;
-
-            foreach (var file in logDir.GetFiles("*.log"))
+            void Purge(string? dir)
             {
-                if (file.LastWriteTime < DateTime.Now.AddDays(-config.AppSettings.LogRetentionDays))
-                {
-                    file.Delete();
-                }
+                if (string.IsNullOrWhiteSpace(dir)) return;
+                var d = new DirectoryInfo(dir);
+                if (!d.Exists) return;
+                foreach (var f in d.GetFiles("*.log"))
+                    if (f.LastWriteTime < DateTime.Now.AddDays(-config.AppSettings.LogRetentionDays))
+                        f.Delete();
             }
+
+            Purge(config.Rclone?.LogDir);
+            Purge(config.Cleanup?.LogDir); // NEW: also cleanup logs
         }
     }
 }
