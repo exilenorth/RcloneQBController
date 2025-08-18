@@ -48,10 +48,10 @@ The `CredentialService` is a critical new component responsible for securely man
 *   **`DeleteCredential(string target)`:** Removes a credential from the Windows Credential Manager.
 
 **Integration with Rclone:**
-For Rclone, instead of storing an obscured password in `config.json`, the application now stores the password in the Windows Credential Manager via the `CredentialService`. The `rclone config create` command is then invoked with the `--password-command` flag, which tells Rclone to execute a PowerShell command to retrieve the password from the Credential Manager at runtime. This ensures the password is never exposed in the command line arguments or configuration file.
+The application uses the `CredentialService` to store the Rclone seedbox password securely in the Windows Credential Manager. The `rclone config create` command is then invoked with the `--password-command` flag, which tells Rclone to execute a PowerShell command to retrieve the password from the Credential Manager at runtime. This ensures the password is never exposed in the command line arguments or configuration file. No sensitive information is ever written to the `config.json` file.
 
 **Integration with qBittorrent Cleanup Script:**
-The `qb_cleanup_ratio.ps1` script is updated to retrieve the qBittorrent WebUI password directly from the Windows Credential Manager using a PowerShell command that calls the `CredentialManagement` NuGet package. This eliminates the need to pass the password as a command-line argument or store it in `config.json`.
+The `qb_cleanup_ratio.ps1` script is updated to retrieve the qBittorrent WebUI password directly from the Windows Credential Manager using a PowerShell command that calls the `CredentialService` to retrieve the password. This eliminates the need to pass the password as a command-line argument or store it in `config.json`. The `CredentialManagement` NuGet package is used to facilitate this. No sensitive information is ever written to the `config.json` file.
 
 ### 2.2.3. UserNotifierService
 The `UserNotifierService` is a new service dedicated to providing clear, user-friendly feedback and error messages to the end-user. It abstracts the complexities of displaying notifications and ensures a consistent messaging experience across the application.
@@ -404,9 +404,7 @@ graph TD
     4.  **"How do you want to authenticate?"**
         *   **UI Control:** `Radio Buttons` with two options: `Password` and `SSH key file`.
         *   **Action:**
-            *   If `Password` is selected, a masked `TextBox` will be displayed for password entry. A note will inform the user: "Your password will be safely stored using Rclone’s built-in encryption." The UI will **never** handle the plaintext password directly. When the user proceeds, the application will:
-                1.  The application will securely store the password using the `CredentialService` in the Windows Credential Manager.
-                2.  A reference to this stored credential will be used in the `config.json` file.
+            *   If `Password` is selected, a masked `TextBox` will be displayed for password entry. The UI will **never** handle the plaintext password directly. When the user proceeds, the application will securely store the password using the `CredentialService` in the Windows Credential Manager. No sensitive information is ever written to the `config.json` file.
             *   If `SSH key file` is selected, a `TextBox` with a "Browse" button will appear for the private key file path, along with an optional masked `TextBox` for a passphrase.
     5.  **"What name should we give this remote?"**
         *   **UI Control:** `TextBox`
@@ -438,7 +436,7 @@ graph TD
     1.  When the user clicks "Test Connection," the application will construct the necessary parameters and execute `rclone lsd [remote]:` in the background.
     2.  **On Success:** A success message is displayed, and the "Finish" button is enabled.
     3.  **On Failure:** The error output from `rclone` is shown to the user, who can then navigate back to previous steps to correct their settings.
-    4.  Upon clicking "Finish," the application first executes the non-interactive `rclone config create` command to provision the remote, using the obscured password. It then writes the final `config.json`.
+    4.  Upon clicking "Finish," the application first executes the non-interactive `rclone config create` command to provision the remote, using the password retrieved from the Windows Credential Manager. It then writes the final `config.json`.
 
 *   **Non-Interactive Command Example:**
     ```batch
@@ -512,17 +510,18 @@ graph TD
 *   **Background Actions:** The "Test" button makes an HTTP request to `http://<detected_ip>:<port>/api/v2/app/version`. The "Next" button is enabled on a successful response.
 
 ##### Step 6 – Ask for WebUI Username & Password
-*   **Purpose:** To get the user's qBittorrent credentials.
+*   **Purpose:** To get the user's qBittorrent credentials and securely store them.
 *   **UI Elements:**
     *   `TextBox` for Username.
     *   `PasswordBox` for Password.
     *   A "Test Login" button.
+*   **Action:** The entered password will be securely stored in the Windows Credential Manager via the `CredentialService`. No sensitive information is ever written to the `config.json` file.
 *   **Background Actions:** The application attempts to authenticate with the qB API using the provided credentials. A "Connected!" or "Invalid credentials" message is displayed. The "Next" button is enabled on success.
 
 ##### Step 7 – Store Credentials
 *   **Purpose:** To securely store all the gathered configuration data.
 *   **UI Elements:** A summary screen showing the values that will be saved.
-*   **Background Actions:** The application encrypts sensitive data (like the qB password) and writes all the configuration values (VPN config path, internal IP, qB host/port, credentials, rclone remote name) to the `config.json` file.
+*   **Background Actions:** The application securely stores sensitive data (like the qBittorrent password) in the Windows Credential Manager via the `CredentialService`. Other configuration values (VPN config path, internal IP, qB host/port, rclone remote name) are written to the `config.json` file. No sensitive information is ever written to the `config.json` file.
 
 ##### Step 8 – Run First Test
 *   **Purpose:** To perform a final end-to-end validation of the entire setup.

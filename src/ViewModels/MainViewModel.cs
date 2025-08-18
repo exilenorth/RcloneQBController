@@ -49,7 +49,7 @@ namespace RcloneQBController.ViewModels
             }
 
 
-            RunJobCommand = new RelayCommand(async (job) =>
+            RunJobCommand = new AsyncRelayCommand(async (job) =>
             {
                 if (job is RcloneJobConfig rcloneJob)
                 {
