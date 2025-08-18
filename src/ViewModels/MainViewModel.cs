@@ -20,7 +20,7 @@ namespace RcloneQBController.ViewModels
         private readonly ConfigurationService _configurationService;
         private readonly ScriptGenerationService _scriptGenerationService;
         private readonly SchedulingService _schedulingService;
-        private readonly AppConfig _config;
+        private AppConfig _config = new AppConfig();
 
         public MainViewModel()
         {
@@ -64,7 +64,10 @@ namespace RcloneQBController.ViewModels
             {
                 if (job is RcloneJobConfig rcloneJob)
                 {
-                    _scriptRunner.StopJob(rcloneJob.Name);
+                    if (rcloneJob?.Name != null)
+                    {
+                        _scriptRunner.StopJob(rcloneJob.Name);
+                    }
                 }
             });
 
@@ -100,7 +103,10 @@ namespace RcloneQBController.ViewModels
                     {
                         _schedulingService.Stop(rcloneJob);
                     }
-                    _configurationService.SaveConfig(_config);
+                    if (_config != null)
+                    {
+                        _configurationService.SaveConfig(_config);
+                    }
                 }
             });
         }

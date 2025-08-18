@@ -90,10 +90,15 @@ namespace RcloneQBController.Services
                         scriptContent.Replace("%%SOURCE_REMOTE%%", sourceRemotePath);
                         scriptContent.Replace("%%DEST_PATH%%", job.DestPath);
 
-                        var outputFileName = $"rclone_pull_{Sanitize(job.Name)}.bat";
+                        var sanitizedJobName = "default_job";
+                        if (!string.IsNullOrEmpty(job.Name))
+                        {
+                            sanitizedJobName = Sanitize(job.Name);
+                        }
+                        var outputFileName = $"rclone_pull_{sanitizedJobName}.bat";
                         var outputPath = Path.Combine(outputDirectory, outputFileName);
 
-                        scriptContent.Replace("rclone_pull.lock", $"rclone_pull_{Sanitize(job.Name)}.lock");
+                        scriptContent.Replace("rclone_pull.lock", $"rclone_pull_{sanitizedJobName}.lock");
 
                         var final = scriptContent.ToString();
                         if (final.Contains("%%"))

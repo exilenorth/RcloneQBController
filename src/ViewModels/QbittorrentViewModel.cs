@@ -69,12 +69,12 @@ namespace RcloneQBController.ViewModels
             StopCleanupScriptCommand = new RelayCommand(StopCleanupScript);
         }
 
-        private void FindVpnIp(object parameter)
+        private void FindVpnIp(object? parameter)
         {
             // Logic to run ipconfig and parse output
         }
 
-        private async System.Threading.Tasks.Task TestConnection(object parameter)
+        private async System.Threading.Tasks.Task TestConnection(object? parameter)
         {
             if (parameter is PasswordBox passwordBox)
             {
@@ -92,7 +92,7 @@ namespace RcloneQBController.ViewModels
             }
         }
 
-        private async void RunCleanupScript(object parameter)
+        private async void RunCleanupScript(object? parameter)
         {
             IsRunning = true;
             await _scriptRunner.RunCleanupScriptAsync(IsDryRunEnabled, (output) =>
@@ -105,7 +105,7 @@ namespace RcloneQBController.ViewModels
             IsRunning = false;
         }
 
-        private void StopCleanupScript(object parameter)
+        private void StopCleanupScript(object? parameter)
         {
             _scriptRunner.StopJob("cleanup");
         }

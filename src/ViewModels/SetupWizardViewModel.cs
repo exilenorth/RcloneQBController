@@ -34,7 +34,7 @@ namespace RcloneQBController.ViewModels
         public ICommand NextCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand FinishCommand { get; }
-        public event Action<bool> RequestClose;
+        public event Action<bool>? RequestClose;
 
         public SetupWizardViewModel()
         {
@@ -64,7 +64,10 @@ namespace RcloneQBController.ViewModels
             {
                 if (CurrentStepViewModel is SeedboxConnectionViewModel seedboxVM && _steps[_currentStepIndex + 1] is TransferJobViewModel transferJobVM)
                 {
-                    transferJobVM.UpdateDefaultPaths(seedboxVM.Username);
+                    if (!string.IsNullOrEmpty(seedboxVM.Username))
+                    {
+                        transferJobVM.UpdateDefaultPaths(seedboxVM.Username);
+                    }
                 }
 
                 _currentStepIndex++;

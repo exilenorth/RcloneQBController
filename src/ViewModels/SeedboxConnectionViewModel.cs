@@ -75,7 +75,7 @@ namespace RcloneQBController.ViewModels
             TestConnectionCommand = new RelayCommand(async (param) => await TestConnection(param));
         }
 
-        private async System.Threading.Tasks.Task TestConnection(object parameter)
+        private async System.Threading.Tasks.Task TestConnection(object? parameter)
         {
             if (parameter is PasswordBox passwordBox)
             {

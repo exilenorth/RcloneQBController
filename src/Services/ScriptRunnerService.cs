@@ -25,6 +25,11 @@ namespace RcloneQBController.Services
 
                             try
                             {
+                                if (string.IsNullOrEmpty(job.Name))
+                                {
+                                    onOutput("Error: Job name is null or empty.");
+                                    return;
+                                }
                                 var scriptPath = Path.Combine(System.AppContext.BaseDirectory, "scripts", $"rclone_pull_{job.Name}.bat");
                                 if (!File.Exists(scriptPath))
                                 {
