@@ -1,0 +1,71 @@
+<Window x:Class="RcloneQBController.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RcloneQBController.Views"
+        mc:Ignorable="d"
+        Title="Settings" Height="450" Width="800">
+    <Grid>
+        <TabControl>
+            <TabItem Header="General">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Log Retention Days:" />
+                    <TextBox Text="{Binding ConfigCopy.AppSettings.LogRetentionDays, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="qBittorrent">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Host:" />
+                    <TextBox Text="{Binding ConfigCopy.QBittorrent.Host, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                    <TextBlock Text="Port:" />
+                    <TextBox Text="{Binding ConfigCopy.QBittorrent.Port, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                    <TextBlock Text="Username:" />
+                    <TextBox Text="{Binding ConfigCopy.QBittorrent.Username, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                    <TextBlock Text="Password:" />
+                    <TextBox Text="{Binding ConfigCopy.QBittorrent.Password, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Rclone">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Rclone Path:" />
+                        <TextBox Text="{Binding ConfigCopy.Rclone.RclonePath, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                        <TextBlock Text="Remote Name:" />
+                        <TextBox Text="{Binding ConfigCopy.Rclone.RemoteName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                        <TextBlock Text="Log Directory:" />
+                        <TextBox Text="{Binding ConfigCopy.Rclone.LogDir, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                    </StackPanel>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding RcloneJobs}" SelectedItem="{Binding SelectedJob}" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}" />
+                            <DataGridTextColumn Header="Destination" Binding="{Binding DestPath}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <Button Content="Add" Command="{Binding AddJobCommand}" Margin="5" />
+                        <Button Content="Edit" Command="{Binding EditJobCommand}" Margin="5" />
+                        <Button Content="Remove" Command="{Binding RemoveJobCommand}" Margin="5" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Scheduling">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Pull Every (minutes):" />
+                    <TextBox Text="{Binding ConfigCopy.Schedule.PullEveryMinutes, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
+            <Button Content="Save" Command="{Binding SaveCommand}" Margin="5"/>
+            <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</Window>

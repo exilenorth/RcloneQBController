@@ -15,6 +15,7 @@ namespace RcloneQBController.ViewModels
         public ICommand StopJobCommand { get; }
         public ICommand PreviewCommand { get; }
         public ICommand ToggleScheduledJobCommand { get; }
+        public ICommand OpenSettingsCommand { get; }
 
         private readonly ScriptRunnerService _scriptRunner;
         private readonly ConfigurationService _configurationService;
@@ -109,6 +110,26 @@ namespace RcloneQBController.ViewModels
                     }
                 }
             });
+
+            OpenSettingsCommand = new RelayCommand(_ => OpenSettings());
+        }
+
+        private void OpenSettings()
+        {
+            var settingsWindow = new RcloneQBController.Views.SettingsWindow();
+            var result = settingsWindow.ShowDialog();
+            if (result == true)
+            {
+                _config = _configurationService.LoadConfig();
+                Jobs.Clear();
+                if (_config != null && _config.Rclone != null && _config.Rclone.Jobs != null)
+                {
+                    foreach (var job in _config.Rclone.Jobs)
+                    {
+                        Jobs.Add(job);
+                    }
+                }
+            }
         }
     }
 }

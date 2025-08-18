@@ -17,5 +17,7 @@
 
         <!-- Right Column: Activity Dashboard -->
         <views:ActivityDashboardView Grid.Column="1" />
+
+        <Button Content="Settings" Command="{Binding OpenSettingsCommand}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Grid.Column="1" />
     </Grid>
 </Window>
