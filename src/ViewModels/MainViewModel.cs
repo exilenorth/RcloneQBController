@@ -16,6 +16,9 @@ namespace RcloneQBController.ViewModels
         public ICommand PreviewCommand { get; }
         public ICommand ToggleScheduledJobCommand { get; }
         public ICommand OpenSettingsCommand { get; }
+        public ICommand OpenUserGuideCommand { get; }
+        public ICommand OpenLogFolderCommand { get; }
+        public ICommand ExitCommand { get; }
 
         private readonly ScriptRunnerService _scriptRunner;
         private readonly ConfigurationService _configurationService;
@@ -112,6 +115,45 @@ namespace RcloneQBController.ViewModels
             });
 
             OpenSettingsCommand = new RelayCommand(_ => OpenSettings());
+            OpenUserGuideCommand = new RelayCommand(_ => OpenUserGuide());
+            OpenLogFolderCommand = new RelayCommand(_ => OpenLogFolder());
+            ExitCommand = new RelayCommand(_ => ExitApplication());
+        }
+
+        private void OpenUserGuide()
+        {
+            var userGuideWindow = new RcloneQBController.Views.UserGuideWindow();
+            userGuideWindow.Show();
+        }
+
+        private void OpenLogFolder()
+        {
+            string logPath = _config?.Rclone?.LogDir;
+
+            if (!string.IsNullOrEmpty(logPath))
+            {
+                string fullPath = System.IO.Path.GetFullPath(logPath);
+                if (System.IO.Directory.Exists(fullPath))
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(fullPath)
+                    {
+                        UseShellExecute = true
+                    });
+                }
+                else
+                {
+                    MessageBox.Show($"Log folder not found at: {fullPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Log folder path is not configured in settings.", "Configuration Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void ExitApplication()
+        {
+            Application.Current.Shutdown();
         }
 
         private void OpenSettings()
