@@ -28,25 +28,18 @@ namespace RcloneQBController.Services
             if (File.Exists(rcloneTemplatePath))
             {
                 var rcloneTemplate = File.ReadAllText(rcloneTemplatePath);
-                var scriptContent = new StringBuilder(rcloneTemplate);
+                var scriptContent = rcloneTemplate
+                    .Replace("%%RCLONE_EXE_PATH%%", Sanitize(config.Rclone.RclonePath ?? string.Empty))
+                    .Replace("%%SOURCE%%", Sanitize(job.SourcePath ?? string.Empty))
+                    .Replace("%%DEST%%", Sanitize(job.DestPath ?? string.Empty))
+                    .Replace("%%LOG_DIR%%", Sanitize(config.Rclone.LogDir ?? string.Empty))
+                    .Replace("%%FILTER_FILE%%", Sanitize(job.FilterFile ?? string.Empty))
+                    .Replace("%%LOG_LEVEL%%", Sanitize(config.Rclone.LogLevel ?? "INFO"))
+                    .Replace("%%MIN_AGE%%", Sanitize(config.Rclone.Flags?.MinAge ?? string.Empty))
+                    .Replace("%%TRANSFERS%%", config.Rclone.Flags?.Transfers.ToString() ?? "4")
+                    .Replace("%%CHECKERS%%", config.Rclone.Flags?.Checkers.ToString() ?? "8");
 
-                // --- Replace General Rclone Settings ---
-                scriptContent.Replace("%%RCLONE_EXE_PATH%%", config.Rclone.RclonePath);
-                scriptContent.Replace("%%LOG_DIR%%", config.Rclone.LogDir);
-                if (config.Rclone.Flags != null)
-                {
-                    foreach (var flag in config.Rclone.Flags)
-                    {
-                        scriptContent.Replace($"%%{flag.Key.ToUpper()}%%", flag.Value.ToString());
-                    }
-                }
-
-                // --- Replace Job-Specific Settings ---
-                var sourceRemotePath = $"{config.Rclone.RemoteName}:{job.SourcePath}";
-                scriptContent.Replace("%%SOURCE_REMOTE%%", sourceRemotePath);
-                scriptContent.Replace("%%DEST_PATH%%", job.DestPath);
-
-                return scriptContent.ToString();
+                return scriptContent;
             }
 
             throw new FileNotFoundException($"Template file not found at: {rcloneTemplatePath}");
@@ -72,23 +65,16 @@ namespace RcloneQBController.Services
 
                     foreach (var job in config.Rclone.Jobs)
                     {
-                        var scriptContent = new StringBuilder(rcloneTemplate);
-
-                        // --- Replace General Rclone Settings ---
-                        scriptContent.Replace("%%RCLONE_EXE_PATH%%", config.Rclone.RclonePath);
-                        scriptContent.Replace("%%LOG_DIR%%", config.Rclone.LogDir);
-                        if (config.Rclone.Flags != null)
-                        {
-                            foreach (var flag in config.Rclone.Flags)
-                            {
-                                scriptContent.Replace($"%%{flag.Key.ToUpper()}%%", flag.Value.ToString());
-                            }
-                        }
-
-                        // --- Replace Job-Specific Settings ---
-                        var sourceRemotePath = $"{config.Rclone.RemoteName}:{job.SourcePath}";
-                        scriptContent.Replace("%%SOURCE_REMOTE%%", sourceRemotePath);
-                        scriptContent.Replace("%%DEST_PATH%%", job.DestPath);
+                        var scriptContent = rcloneTemplate
+                            .Replace("%%RCLONE_EXE_PATH%%", Sanitize(config.Rclone.RclonePath ?? string.Empty))
+                            .Replace("%%SOURCE%%", Sanitize(job.SourcePath ?? string.Empty))
+                            .Replace("%%DEST%%", Sanitize(job.DestPath ?? string.Empty))
+                            .Replace("%%LOG_DIR%%", Sanitize(config.Rclone.LogDir ?? string.Empty))
+                            .Replace("%%FILTER_FILE%%", Sanitize(job.FilterFile ?? string.Empty))
+                            .Replace("%%LOG_LEVEL%%", Sanitize(config.Rclone.LogLevel ?? "INFO"))
+                            .Replace("%%MIN_AGE%%", Sanitize(config.Rclone.Flags?.MinAge ?? string.Empty))
+                            .Replace("%%TRANSFERS%%", config.Rclone.Flags?.Transfers.ToString() ?? "4")
+                            .Replace("%%CHECKERS%%", config.Rclone.Flags?.Checkers.ToString() ?? "8");
 
                         var sanitizedJobName = "default_job";
                         if (!string.IsNullOrEmpty(job.Name))
@@ -98,12 +84,11 @@ namespace RcloneQBController.Services
                         var outputFileName = $"rclone_pull_{sanitizedJobName}.bat";
                         var outputPath = Path.Combine(outputDirectory, outputFileName);
 
-                        scriptContent.Replace("rclone_pull.lock", $"rclone_pull_{sanitizedJobName}.lock");
+                        scriptContent = scriptContent.Replace("rclone_pull.lock", $"rclone_pull_{sanitizedJobName}.lock");
 
-                        var final = scriptContent.ToString();
-                        if (final.Contains("%%"))
+                        if (scriptContent.Contains("%%"))
                             throw new System.InvalidOperationException("Template has unresolved placeholders.");
-                        File.WriteAllText(outputPath, final);
+                        File.WriteAllText(outputPath, scriptContent);
                     }
                 }
                 else

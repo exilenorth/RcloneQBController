@@ -21,6 +21,9 @@ namespace RcloneQBController.Models
         [JsonPropertyName("max_runtime_minutes")]
         public int MaxRuntimeMinutes { get; set; }
 
+        [JsonPropertyName("filter_file")]
+        public string? FilterFile { get; set; }
+
         public bool IsScheduled
         {
             get => _isScheduled;

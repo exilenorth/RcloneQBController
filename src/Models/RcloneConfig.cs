@@ -17,10 +17,18 @@ namespace RcloneQBController.Models
         [JsonPropertyName("use_json_log")]
         public bool UseJsonLog { get; set; }
 
+        [JsonPropertyName("log_level")]
+        public string? LogLevel { get; set; }
+
         [JsonPropertyName("flags")]
-        public Dictionary<string, object>? Flags { get; set; }
+        public RcloneFlagsConfig? Flags { get; set; }
 
         [JsonPropertyName("jobs")]
         public List<RcloneJobConfig>? Jobs { get; set; }
+
+        public RcloneConfig()
+        {
+            Flags = new RcloneFlagsConfig();
+        }
     }
 }
