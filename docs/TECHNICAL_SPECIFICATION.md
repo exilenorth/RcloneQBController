@@ -136,8 +136,12 @@ The application will rely on a central `config.json` file located in the applica
     "flags": { "min_age": "5m", "transfers": 6, "checkers": 8, "update": true },
     "jobs": [
       { "name": "tv",     "source_path": "/home/USER/torrents/qbittorrent/Media/TV",     "dest_path": "D:\\Media\\TV",     "log": "rclone_tv", "max_runtime_minutes": 60 },
-      { "name": "movies", "source_path": "/home/USER/torrents/qbittorrent/Media/Movies", "dest_path": "D:\\Media\\Movies", "log": "rclone_movies", "max_runtime_minutes": 120 }
-    ]
+      { "name": "movies", "source_path": "/home/USER/torrents/qbittorrent/Media/Movies", "dest_path": "D:\\Media\\Movies", "log": "rclone_movies", "max_runtime_minutes": 120, "is_scheduled": true }
+    ],
+    "is_scheduled": {
+      "type": "boolean",
+      "description": "Determines if the job should be run automatically by the scheduler."
+    }
   },
   "seedbox": {
     "host": "58.nl21.seedit4.me",
@@ -168,6 +172,7 @@ The application will rely on a central `config.json` file located in the applica
     "dated_logs": true
   },
   "schedule": {
+    "description": "Global scheduling settings that apply to all jobs with 'is_scheduled' enabled.",
     "pull_every_minutes": 15,
     "cleanup_offset_minutes": 5,
     "only_when_logged_in": true

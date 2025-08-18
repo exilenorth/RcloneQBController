@@ -14,23 +14,27 @@ namespace RcloneQBController.ViewModels
         public ICommand RunJobCommand { get; }
         public ICommand StopJobCommand { get; }
         public ICommand PreviewCommand { get; }
+        public ICommand ToggleScheduledJobCommand { get; }
 
         private readonly ScriptRunnerService _scriptRunner;
         private readonly ConfigurationService _configurationService;
         private readonly ScriptGenerationService _scriptGenerationService;
+        private readonly SchedulingService _schedulingService;
+        private readonly AppConfig _config;
 
         public MainViewModel()
         {
             ActivityDashboard = new ActivityDashboardViewModel();
             _scriptRunner = new ScriptRunnerService();
+            _schedulingService = new SchedulingService(_scriptRunner);
             Qbittorrent = new QbittorrentViewModel(_scriptRunner, ActivityDashboard);
             _configurationService = ConfigurationService.Instance;
             _scriptGenerationService = new ScriptGenerationService(_configurationService);
 
-            var config = _configurationService.LoadConfig();
-            if (config != null && config.Rclone != null && config.Rclone.Jobs != null)
+            _config = _configurationService.LoadConfig() ?? new AppConfig();
+            if (_config != null && _config.Rclone != null && _config.Rclone.Jobs != null)
             {
-                Jobs = new ObservableCollection<RcloneJobConfig>(config.Rclone.Jobs);
+                Jobs = new ObservableCollection<RcloneJobConfig>(_config.Rclone.Jobs);
             }
             else
             {
@@ -77,6 +81,22 @@ namespace RcloneQBController.ViewModels
                                         {
                                             MessageBox.Show($"Could not generate preview.\n\nDetails: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                         }
+                }
+            });
+
+            ToggleScheduledJobCommand = new RelayCommand((job) =>
+            {
+                if (job is RcloneJobConfig rcloneJob)
+                {
+                    if (rcloneJob.IsScheduled)
+                    {
+                        _schedulingService.Start(rcloneJob);
+                    }
+                    else
+                    {
+                        _schedulingService.Stop(rcloneJob);
+                    }
+                    _configurationService.SaveConfig(_config);
                 }
             });
         }

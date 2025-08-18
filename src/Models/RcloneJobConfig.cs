@@ -23,6 +23,8 @@ namespace RcloneQBController.Models
         [JsonPropertyName("max_runtime_minutes")]
         public int MaxRuntimeMinutes { get; set; }
 
+        public bool IsScheduled { get; set; }
+
         [JsonIgnore]
         public bool IsRunning
         {
