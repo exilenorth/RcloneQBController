@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security;
 using System.Windows.Input;
 
 namespace RcloneQBController.ViewModels
@@ -108,7 +109,7 @@ namespace RcloneQBController.ViewModels
 
         private void FinishWizard(object? parameter)
         {
-            if (parameter is Func<string> passwordAccessor)
+            if (parameter is Func<SecureString> passwordAccessor)
             {
                 var rcloneInstallVM = _steps.OfType<RcloneInstallViewModel>().First();
                 var seedboxConnectionVM = _steps.OfType<SeedboxConnectionViewModel>().First();

@@ -32,7 +32,7 @@
             <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
             <TextBlock Text="Password:" Foreground="#F1F1F1" Margin="0,5"/>
             <PasswordBox Name="PasswordBox" Background="#3E3E42" Foreground="#F1F1F1" BorderThickness="0"/>
-            <Button Command="{Binding TestConnectionCommand}" Width="150" Margin="0,15,0,0" HorizontalAlignment="Center" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0">
+            <Button Command="{Binding TestConnectionCommand}" CommandParameter="{Binding ElementName=PasswordBox}" Width="150" Margin="0,15,0,0" HorizontalAlignment="Center" Background="#007ACC" Foreground="#F1F1F1" BorderThickness="0">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Content" Value="Test Connection"/>

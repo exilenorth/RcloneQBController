@@ -17,7 +17,11 @@ namespace RcloneQBController.Services
 
         public string GetPreviewCommand(RcloneJobConfig job)
         {
+            if (job == null) throw new System.ArgumentNullException(nameof(job));
+
             var config = _configurationService.LoadConfig();
+            if (config.Rclone == null) throw new System.ArgumentNullException(nameof(config.Rclone));
+
             var templateDirectory = Path.Combine(System.AppContext.BaseDirectory, "script_templates");
             var rcloneTemplatePath = Path.Combine(templateDirectory, "rclone_pull_media.bat.template");
 
@@ -45,7 +49,7 @@ namespace RcloneQBController.Services
                 return scriptContent.ToString();
             }
 
-                        throw new FileNotFoundException($"Template file not found at: {rcloneTemplatePath}");
+            throw new FileNotFoundException($"Template file not found at: {rcloneTemplatePath}");
         }
 
         public void GenerateScripts(AppConfig config)

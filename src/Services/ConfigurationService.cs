@@ -14,19 +14,20 @@ namespace RcloneQBController.Services
 
         private ConfigurationService() { }
 
-        public AppConfig? LoadConfig()
+        public AppConfig LoadConfig()
         {
             if (!File.Exists(ConfigFileName))
             {
-                return null;
+                throw new FileNotFoundException("Configuration file not found.", ConfigFileName);
             }
 
             var json = File.ReadAllText(ConfigFileName);
             var config = JsonSerializer.Deserialize<AppConfig>(json);
-            if (config != null)
+            if (config == null)
             {
-                PurgeOldLogs(config);
+                throw new InvalidDataException("Failed to deserialize configuration file.");
             }
+            PurgeOldLogs(config);
             return config;
         }
 

@@ -135,8 +135,8 @@ The application will rely on a central `config.json` file located in the applica
     "use_json_log": true,
     "flags": { "min_age": "5m", "transfers": 6, "checkers": 8, "update": true },
     "jobs": [
-      { "name": "tv",     "source_path": "/home/USER/torrents/qbittorrent/Media/TV",     "dest_path": "D:\\Media\\TV",     "log": "rclone_tv", "max_runtime_minutes": 60 },
-      { "name": "movies", "source_path": "/home/USER/torrents/qbittorrent/Media/Movies", "dest_path": "D:\\Media\\Movies", "log": "rclone_movies", "max_runtime_minutes": 120, "is_scheduled": true }
+      { "name": "tv",     "source_path": "/home/USER/torrents/qbittorrent/Media/TV",     "dest_path": "D:\\Media\\TV", "max_runtime_minutes": 60 },
+      { "name": "movies", "source_path": "/home/USER/torrents/qbittorrent/Media/Movies", "dest_path": "D:\\Media\\Movies", "max_runtime_minutes": 120, "is_scheduled": true }
     ],
     "is_scheduled": {
       "type": "boolean",
@@ -159,7 +159,6 @@ The application will rely on a central `config.json` file located in the applica
     "port": 9148,
     "base_path": "",
     "username": "seedit4me",
-    "password_ref": "WindowsCredentialManager:qb_seedbox"
   },
   "cleanup": {
     "categories": [],
@@ -204,7 +203,7 @@ The `ValidateConfiguration()` method will perform a series of checks to ensure t
 ### 4.3. Log Rotation
 The application will implement a log purging mechanism to prevent log files from consuming excessive disk space.
 *   The `app_settings.log_retention_days` key in `config.json` defines the maximum number of days to keep log files.
-*   On application startup, a background task will scan the log directory specified by `rclone.log_dir`.
+*   On application startup, a background task will scan the log directories specified by `rclone.log_dir` and `cleanup.log_dir`.
 *   Any log files with a "Last Modified" date older than the specified retention period will be permanently deleted.
 
 ## 5. External Dependencies

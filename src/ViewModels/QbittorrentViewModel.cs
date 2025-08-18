@@ -1,6 +1,7 @@
 using RcloneQBController.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Security;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -63,7 +64,7 @@ namespace RcloneQBController.ViewModels
             _scriptRunner = scriptRunner;
             _activityDashboard = activityDashboard;
             FindVpnIpCommand = new RelayCommand(FindVpnIp);
-            TestConnectionCommand = new RelayCommand(TestConnection);
+            TestConnectionCommand = new RelayCommand(async (param) => await TestConnection(param));
             RunCleanupScriptCommand = new RelayCommand(RunCleanupScript);
             StopCleanupScriptCommand = new RelayCommand(StopCleanupScript);
         }
@@ -73,11 +74,11 @@ namespace RcloneQBController.ViewModels
             // Logic to run ipconfig and parse output
         }
 
-        private async void TestConnection(object parameter)
+        private async System.Threading.Tasks.Task TestConnection(object parameter)
         {
             if (parameter is PasswordBox passwordBox)
             {
-                var password = passwordBox.Password;
+                var password = passwordBox.SecurePassword;
                 IsTestingConnection = true;
                 try
                 {

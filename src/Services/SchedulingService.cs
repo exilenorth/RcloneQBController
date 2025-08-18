@@ -1,5 +1,6 @@
 using RcloneQBController.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace RcloneQBController.Services
 {
     public class SchedulingService
     {
-        private readonly Dictionary<string, Timer> _timers = new();
+        private readonly ConcurrentDictionary<string, Timer> _timers = new();
         private readonly ScriptRunnerService _scriptRunnerService;
 
         public SchedulingService(ScriptRunnerService scriptRunnerService)
@@ -25,17 +26,16 @@ namespace RcloneQBController.Services
                 await _scriptRunnerService.RunRcloneJobAsync(job, _ => { });
             }, null, TimeSpan.Zero, interval);
 
-            _timers[job.Name] = timer;
+            _timers.TryAdd(job.Name, timer);
         }
 
         public void Stop(RcloneJobConfig job)
         {
             if (job.Name == null) return;
 
-            if (_timers.TryGetValue(job.Name, out var timer))
+            if (_timers.TryRemove(job.Name, out var timer))
             {
                 timer.Dispose();
-                _timers.Remove(job.Name);
             }
         }
     }

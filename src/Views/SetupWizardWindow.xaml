@@ -42,7 +42,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Content="Finish" Command="{Binding FinishCommand}" CommandParameter="{Binding ElementName=PasswordBox, Path=Password}" Width="100" Margin="5" Background="#388E3C" Foreground="#F1F1F1" BorderThickness="0">
+                        <Button Content="Finish" Command="{Binding FinishCommand}" CommandParameter="{Binding ElementName=PasswordBox, Path=SecurePassword}" Width="100" Margin="5" Background="#388E3C" Foreground="#F1F1F1" BorderThickness="0">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Visibility" Value="Collapsed"/>

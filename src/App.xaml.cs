@@ -13,7 +13,7 @@ namespace RcloneQBController
         {
             base.OnStartup(e);
 
-            var configPath = Path.Combine(Directory.GetCurrentDirectory(), "config.json");
+            var configPath = Path.Combine(System.AppContext.BaseDirectory, "config.json");
             if (!File.Exists(configPath))
             {
                                 var wizard = new SetupWizardWindow();

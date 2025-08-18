@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Security;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -71,14 +72,14 @@ namespace RcloneQBController.ViewModels
 
         public SeedboxConnectionViewModel()
         {
-            TestConnectionCommand = new RelayCommand(TestConnection);
+            TestConnectionCommand = new RelayCommand(async (param) => await TestConnection(param));
         }
 
-        private async void TestConnection(object parameter)
+        private async System.Threading.Tasks.Task TestConnection(object parameter)
         {
             if (parameter is PasswordBox passwordBox)
             {
-                var password = passwordBox.Password;
+                var password = passwordBox.SecurePassword;
                 IsTestingConnection = true;
                 try
                 {
