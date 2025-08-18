@@ -4,12 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:RcloneQBController.Views"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
         Title="Rclone QB Controller" Height="600" Width="1000">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+   <Window.Resources>
+       <tb:TaskbarIcon x:Key="MyNotifyIcon" x:Name="MyNotifyIcon"
+                       IconSource="/Assets/icon.ico"
+                       ToolTipText="Rclone QB Controller">
+           <tb:TaskbarIcon.ContextMenu>
+               <ContextMenu>
+                   <MenuItem Header="Show" Command="{Binding ShowWindowCommand}" />
+                   <MenuItem Header="Exit" Command="{Binding ExitCommand}" />
+               </ContextMenu>
+           </tb:TaskbarIcon.ContextMenu>
+       </tb:TaskbarIcon>
+   </Window.Resources>
+   <Grid>
+       <Grid.RowDefinitions>
+           <RowDefinition Height="Auto" />
+           <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0">

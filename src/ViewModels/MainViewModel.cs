@@ -19,8 +19,9 @@ namespace RcloneQBController.ViewModels
         public ICommand OpenUserGuideCommand { get; }
         public ICommand OpenLogFolderCommand { get; }
         public ICommand ExitCommand { get; }
+       public ICommand ShowWindowCommand { get; }
 
-        private readonly ScriptRunnerService _scriptRunner;
+       private readonly ScriptRunnerService _scriptRunner;
         private readonly ConfigurationService _configurationService;
         private readonly ScriptGenerationService _scriptGenerationService;
         private readonly SchedulingService _schedulingService;
@@ -118,9 +119,15 @@ namespace RcloneQBController.ViewModels
             OpenUserGuideCommand = new RelayCommand(_ => OpenUserGuide());
             OpenLogFolderCommand = new RelayCommand(_ => OpenLogFolder());
             ExitCommand = new RelayCommand(_ => ExitApplication());
-        }
+           ShowWindowCommand = new RelayCommand(_ => ShowWindow());
+       }
+       private void ShowWindow()
+       {
+           Application.Current.MainWindow.Show();
+           Application.Current.MainWindow.WindowState = WindowState.Normal;
+       }
 
-        private void OpenUserGuide()
+       private void OpenUserGuide()
         {
             var userGuideWindow = new RcloneQBController.Views.UserGuideWindow();
             userGuideWindow.Show();
@@ -153,8 +160,9 @@ namespace RcloneQBController.ViewModels
 
         private void ExitApplication()
         {
-            Application.Current.Shutdown();
-        }
+           (Application.Current.MainWindow as RcloneQBController.Views.MainWindow)?.MyNotifyIcon.Dispose();
+           Application.Current.Shutdown();
+       }
 
         private void OpenSettings()
         {
