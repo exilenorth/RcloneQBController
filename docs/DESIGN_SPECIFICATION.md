@@ -26,11 +26,16 @@ The application will adopt a "Modern Dark" theme to provide a professional, focu
 
 ## 2. Main Window Layout
 
-The main window is designed for clarity and ease of use, featuring a two-column layout.
+The main window is designed for clarity and ease of use, featuring a new menu bar for navigation and a two-column layout for content.
 
 ```mermaid
 graph TD
     subgraph Main Window
+        direction TB
+        M[Menu Bar] --> L[Content Area];
+    end
+
+    subgraph L [Content Area]
         direction LR
         A[Control Panel - Left Column] --> B[Activity Dashboard - Right Column];
     end
@@ -52,6 +57,10 @@ graph TD
         E[Graphical Log View] --> F[Dynamic File Transfer View];
     end
 ```
+
+*   **Menu Bar (Top):**
+    *   A standard menu bar at the top of the main window provides access to global application functions.
+    *   **File Menu:** Contains "Settings" (opens the Settings Window), "User Guide" (opens the User Guide Window), "Open Log Folder" (opens the application's log directory), and "Exit" (closes the application).
 
 *   **Left Column ("Control Panel"):**
     *   This area provides direct control over the scripts.

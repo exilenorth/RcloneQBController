@@ -21,7 +21,7 @@ The RcloneQBController is a Windows Presentation Foundation (WPF) desktop applic
 *   **Language:** C#
 
 ### 2.2. Core Components
-*   **Main Window (View):** The primary user interface of the application. It will display script controls, the console output, status indicators, and provide access to settings.
+*   **Main Window (View):** The primary user interface of the application, now featuring a central menu bar. It displays script controls, the console output, status indicators, and provides access to various application functions via the menu.
 *   **MainViewModel:** The data context for the Main Window. It will contain the logic for handling user interactions, updating the UI, and coordinating with the service layer.
 *   **ConfigurationService:** A singleton service responsible for loading, parsing, validating, and saving the `config.json` file.
 *   **ScriptRunnerService:** Manages the execution of the `rclone` and `qBittorrent` scripts in separate processes. It will be responsible for starting, stopping, and monitoring these processes.
@@ -68,6 +68,25 @@ The UI will feature buttons to manually start and stop each script. A "Preview C
 *   **Preview Command:** Clicking this button displays the exact `rclone` command that will be executed.
 
 The `MainViewModel` commands the `ScriptRunnerService` to launch the appropriate script as a separate process. The `SchedulingService` uses a robust mechanism to trigger the `ScriptRunnerService` based on the `schedule.pull_every_minutes` setting in `config.json`.
+
+### 3.5. Menu Bar Commands
+
+The `MainViewModel` now includes several new commands to support the menu bar functionality, enhancing user interaction and accessibility to key application features.
+
+*   **`ExitCommand`:**
+    *   **Type:** `ICommand`
+    *   **Purpose:** Handles the application exit logic, typically invoked from the "Exit" menu item.
+    *   **Implementation:** Ensures proper shutdown procedures, including disposing of resources and saving any pending state.
+
+*   **`OpenUserGuideCommand`:**
+    *   **Type:** `ICommand`
+    *   **Purpose:** Opens the `UserGuideWindow`, providing users with access to in-app documentation.
+    *   **Implementation:** Creates and displays a new instance of `UserGuideWindow`.
+
+*   **`OpenLogFolderCommand`:**
+    *   **Type:** `ICommand`
+    *   **Purpose:** Opens the application's log directory in the default file explorer.
+    *   **Implementation:** Utilizes `Process.Start()` to open the directory specified in the application's configuration, offering quick access for troubleshooting.
 
 To prevent overlapping executions, the `ScriptRunnerService` will implement a single-instance guard for each script type using a `Mutex`. Before initiating a new script run, the service will check the mutex. If a script is already running, the new execution request will be ignored. The service will also include logic to handle "catch-up" runs after the system wakes from sleep.
 

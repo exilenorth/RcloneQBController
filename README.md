@@ -6,10 +6,10 @@ A GUI application for managing and scheduling the `qb_cleanup_ratio.ps1` and `rc
 ## Core Features
 *   Script Control & Scheduling
 *   Graphical Activity Dashboard
-*   Centralized Settings Management via UI
+*   Centralized Settings Management via UI (now accessible via the new menu bar)
 *   **Settings Window:** A dedicated user interface for comprehensive application configuration, eliminating the need for manual `config.json` edits.
-*   User Guide
-*   Log Folder Shortcut
+*   **User Guide:** Access comprehensive help documentation directly from the menu bar.
+*   **Open Log Folder:** Quickly open the application's log directory via a menu bar shortcut.
 *   VPN Status Indicator & Pre-Run Check
 *   Dry Run UI Control
 *   Configuration Validation

@@ -30,12 +30,7 @@ The Settings Window has been successfully implemented, providing a centralized a
 To provide users with easy access to help documentation and essential application functions through a standard menu bar.
 
 ### 3.2. Implementation Details
-*   **User Guide Window:** A simple, read-only window, `UserGuideWindow.xaml`, will be created. It will contain a `TextBlock` or a similar control to display pre-defined help text, guiding the user on how to use the application.
-*   **Main Window Menu:** A `<Menu>` control will be added to the `MainWindow.xaml`.
-*   **Menu Item Actions:**
-    *   **"Settings":** This menu item will be wired to open a new instance of the `SettingsWindow`.
-    *   **"User Guide":** This will open a new instance of the `UserGuideWindow`.
-    *   **"Open Log Folder":** This will use the `Process.Start()` method to open the log directory specified in `config.json` in the default file explorer, providing quick access for troubleshooting.
+The User Guide and Menu Items feature has been successfully implemented. A new `UserGuideWindow.xaml` was created to display help documentation. The `MainWindow.xaml` now includes a menu bar with options for "Settings", "User Guide", and "Open Log Folder". These menu items are wired to open the respective windows or execute the `Process.Start()` method for opening the log directory, providing intuitive navigation and quick access to essential application functions.
 
 ## 4. System Tray Integration (Completed)
 
