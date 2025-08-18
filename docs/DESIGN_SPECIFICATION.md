@@ -76,6 +76,14 @@ graph TD
     *   **Graphical Log View (Top Section):** A filterable data grid displaying historical and real-time log entries with columns for Timestamp, Script, Status Icon, and Message.
     *   **Dynamic File Transfer View (Bottom Section):** A dedicated data grid that appears only when an `rclone` job is active. It will show in-progress transfers with columns for File Name, Size, and a visual Progress Bar.
 
+### 2.1. System Tray Icon
+The application will feature a system tray icon to indicate its background operation and provide quick access to essential functions.
+
+*   **Icon:** A small, recognizable icon (e.g., the application's logo or a simplified version) will be displayed in the Windows system tray.
+*   **Context Menu:** Right-clicking the system tray icon will reveal a context menu with the following options:
+    *   **"Show":** Restores the main application window to the foreground.
+    *   **"Exit":** Terminates the application completely.
+
 ## 3. First-Time Setup Wizards
 
 The setup wizards will be presented in a clean, focused modal window that guides the user step-by-step.

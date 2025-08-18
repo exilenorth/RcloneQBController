@@ -28,6 +28,17 @@ The RcloneQBController is a Windows Presentation Foundation (WPF) desktop applic
 *   **SchedulingService:** Handles the automated execution of scripts based on the schedule defined in the configuration. It will use the `ScriptRunnerService` to perform the execution.
 *   **SetupWizardViewModel:** The data context for the `SetupWizardWindow`. It manages the overall state and flow of the setup wizards, with each step being represented by its own ViewModel.
 
+### 2.2.1. System Tray Implementation Details
+The system tray integration is primarily handled by `MainWindow.xaml.cs` and `MainViewModel.cs`.
+
+*   **`MainWindow.xaml.cs`:**
+    *   **`OnStateChanged(object sender, EventArgs e)`:** This event handler manages the visibility of the main window. When the window is minimized, it is hidden from the taskbar and only the system tray icon remains visible.
+    *   **`OnClosing(object sender, CancelEventArgs e)`:** This event handler intercepts the window close event. Instead of closing the application, it sets `e.Cancel = true` and hides the window, effectively minimizing it to the system tray. This ensures the application continues to run in the background.
+
+*   **`MainViewModel.cs`:**
+    *   **`ShowWindowCommand`:** This command is bound to the "Show" option in the system tray context menu. When executed, it restores the main application window to its normal state and brings it to the foreground.
+    *   **`ExitApplication`:** This command is bound to the "Exit" option in the system tray context menu. When executed, it explicitly shuts down the entire application, ensuring all background processes are terminated.
+
 ### 2.3. Project Structure
 The project will follow the Model-View-ViewModel (MVVM) design pattern to ensure a clean separation of concerns.
 
@@ -232,6 +243,9 @@ The application requires `rclone.exe` to be present on the system. The path to `
 
 ### 5.2. OpenVPN
 The `qb_cleanup_ratio.ps1` script's functionality is dependent on an active OpenVPN connection. The application will not manage the VPN connection itself but will perform a pre-run check as described in section 3.3. The user is responsible for having a compatible OpenVPN client installed and configured. The application documentation will clearly state this prerequisite.
+
+### 5.3. `Hardcodet.NotifyIcon.Wpf`
+This external library is used to implement the system tray icon functionality, allowing the application to run in the background and be managed from the Windows system tray.
 
 ### 5.3. Dependency Management Strategy
 

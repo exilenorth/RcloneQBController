@@ -44,6 +44,7 @@ To allow the application to run unobtrusively in the background and be managed f
     *   **"Show":** Brings the main window to the foreground.
     *   **"Exit":** Shuts down the application completely.
 *   **Minimize-to-Tray Logic:** The `OnClosing` event of the `MainWindow` will be overridden. Instead of allowing the window to close, the event will be handled (`e.Cancel = true`), and the window's visibility will be set to `Hidden`. This action will minimize the application to the tray instead of terminating it. The "Exit" option in the context menu will be the primary method for closing the application.
+*   **Implementation Summary:** System Tray Integration has been successfully implemented using the `Hardcodet.NotifyIcon.Wpf` library. The `TaskbarIcon` is defined in `MainWindow.xaml`, and its context menu provides "Show" and "Exit" options. The `MainWindow.xaml.cs` handles the `OnStateChanged` event to manage window visibility and the `OnClosing` event to minimize the application to the tray instead of closing it. The `MainViewModel.cs` contains `ShowWindowCommand` and `ExitApplication` commands to control the window and application lifecycle from the tray icon's context menu.
 
 ## 5. Notifications (Completed)
 

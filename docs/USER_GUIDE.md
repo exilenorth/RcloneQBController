@@ -28,6 +28,17 @@ This section is for managing the cleanup of old torrents in qBittorrent.
 *   **Run Cleanup Script:** Click this to start the cleanup process based on the rules you've set (like the seed ratio).
 *   **Dry Run:** This is a very useful safety feature. If you check the Dry Run box before clicking the button, the script will run in a simulation mode. It will show you a log of all the torrents it would have deleted, but it won't actually delete anything. This is a great way to test your rules and make sure they are working as you expect.
 
+## System Tray Integration
+The Rclone QB Controller can run silently in the background, accessible via a system tray icon.
+
+*   **Minimize to Tray:** When you minimize the main application window, it will disappear from the taskbar and reside in the system tray. The application continues to run and perform scheduled tasks.
+*   **Close to Tray:** By default, clicking the close button (X) on the main window will also minimize the application to the system tray instead of fully exiting. This ensures background operations continue uninterrupted.
+
+To interact with the application when it's in the system tray, right-click the Rclone QB Controller icon to access the context menu:
+
+*   **Show:** Click this option to restore the main application window from the system tray.
+*   **Exit:** Select this option to completely close the application and stop all background processes.
+
 ## Settings and Help
 *   **Changing Settings:** You can change all the application's settings, including the schedule intervals, your qBittorrent connection details, and the cleanup rules, by going to the File -> Settings menu at the top of the window.
 *   **Troubleshooting:** If something isn't working as expected, the log files are the best place to look for answers. You can easily open the folder containing all the log files by going to the Help -> Open Log Folder menu.
