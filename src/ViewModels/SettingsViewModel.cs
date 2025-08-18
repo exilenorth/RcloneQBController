@@ -1,6 +1,8 @@
 using RcloneQBController.Models;
 using RcloneQBController.Services;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Text.Json;
 using System.Windows.Input;
 
@@ -9,9 +11,10 @@ namespace RcloneQBController.ViewModels
     public class SettingsViewModel : INotifyPropertyChanged, IDataErrorInfo
     {
         public AppConfig ConfigCopy { get; set; }
-
-        public ICommand SaveCommand { get; }
-        public ICommand CancelCommand { get; }
+        public SecureString QBittorrentPassword { get; set; }
+ 
+         public ICommand SaveCommand { get; }
+         public ICommand CancelCommand { get; }
         public ICommand AddJobCommand { get; }
         public ICommand EditJobCommand { get; }
         public ICommand RemoveJobCommand { get; }
@@ -26,13 +29,23 @@ namespace RcloneQBController.ViewModels
             var originalConfig = ConfigurationService.Instance.LoadConfig();
             var json = JsonSerializer.Serialize(originalConfig);
             ConfigCopy = JsonSerializer.Deserialize<AppConfig>(json);
-
-            SaveCommand = new RelayCommand(Save, CanSave);
-            CancelCommand = new RelayCommand(Cancel);
+            if (!string.IsNullOrEmpty(ConfigCopy.QBittorrent.Password))
+            {
+                QBittorrentPassword = new SecureString();
+                foreach (char c in ConfigCopy.QBittorrent.Password)
+                {
+                    QBittorrentPassword.AppendChar(c);
+                }
+                ConfigCopy.QBittorrent.Password = null;
+            }
+ 
+             SaveCommand = new RelayCommand(Save, CanSave);
+             CancelCommand = new RelayCommand(Cancel);
         }
 
         private void Save(object obj)
         {
+            ConfigCopy.QBittorrent.Password = SecureStringToString(QBittorrentPassword);
             ConfigurationService.Instance.SaveConfig(ConfigCopy);
             CloseAction?.Invoke(true);
         }
@@ -74,6 +87,22 @@ namespace RcloneQBController.ViewModels
                 }
                 // Add other validation logic here
                 return result;
+            }
+        }
+        private string SecureStringToString(SecureString value)
+        {
+            if (value == null)
+                return null;
+
+            IntPtr valuePtr = IntPtr.Zero;
+            try
+            {
+                valuePtr = Marshal.SecureStringToGlobalAllocUnicode(value);
+                return Marshal.PtrToStringUni(valuePtr);
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocUnicode(valuePtr);
             }
         }
     }

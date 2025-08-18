@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RcloneQBController.Views"
+        xmlns:helpers="clr-namespace:RcloneQBController.Helpers"
         mc:Ignorable="d"
         Title="Settings" Height="450" Width="800">
     <Grid>
@@ -23,7 +24,7 @@
                     <TextBlock Text="Username:" />
                     <TextBox Text="{Binding ConfigCopy.QBittorrent.Username, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
                     <TextBlock Text="Password:" />
-                    <TextBox Text="{Binding ConfigCopy.QBittorrent.Password, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                    <PasswordBox helpers:PasswordBoxHelper.BoundPassword="{Binding QBittorrentPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
             </TabItem>
             <TabItem Header="Rclone">
