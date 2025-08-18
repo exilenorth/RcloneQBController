@@ -49,5 +49,5 @@ The Rclone QB Controller provides toast notifications to keep you informed about
     *   A brief summary or relevant details about the task's execution.
 
 ## Settings and Help
-*   **Changing Settings:** You can change all the application's settings, including the schedule intervals, your qBittorrent connection details, and the cleanup rules, by going to the File -> Settings menu at the top of the window.
+*   **Changing Settings:** You can change all the application's settings, including the schedule intervals, your qBittorrent connection details, and the cleanup rules, by going to the File -> Settings menu at the top of the window. Please note that sensitive information like passwords are securely stored in the Windows Credential Manager and are never saved directly in configuration files.
 *   **Troubleshooting:** If something isn't working as expected, the log files are the best place to look for answers. You can easily open the folder containing all the log files by going to the Help -> Open Log Folder menu.

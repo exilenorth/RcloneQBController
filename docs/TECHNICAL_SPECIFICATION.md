@@ -40,6 +40,31 @@ The system tray integration is primarily handled by `MainWindow.xaml.cs` and `Ma
     *   **`ShowWindowCommand`:** This command is bound to the "Show" option in the system tray context menu. When executed, it restores the main application window to its normal state and brings it to the foreground.
     *   **`ExitApplication`:** This command is bound to the "Exit" option in the system tray context menu. When executed, it explicitly shuts down the entire application, ensuring all background processes are terminated.
 
+### 2.2.2. CredentialService
+The `CredentialService` is a critical new component responsible for securely managing sensitive user credentials, such as passwords, by leveraging the Windows Credential Manager. This service ensures that passwords are never stored in plaintext or even encrypted within the `config.json` file, significantly enhancing the application's security posture.
+
+*   **`SaveCredential(string target, string userName, string password)`:** This method securely stores a credential in the Windows Credential Manager. The `target` parameter acts as a unique key (e.g., "rclone_seedbox_password"), `userName` is typically the associated username, and `password` is the sensitive data to be stored.
+*   **`ReadCredential(string target)`:** Retrieves a securely stored credential from the Windows Credential Manager using its `target` key. This method returns the password as a `SecureString`, which should be handled carefully and converted to a `string` only when absolutely necessary for use (e.g., when passing to an external process via standard input).
+*   **`DeleteCredential(string target)`:** Removes a credential from the Windows Credential Manager.
+
+**Integration with Rclone:**
+For Rclone, instead of storing an obscured password in `config.json`, the application now stores the password in the Windows Credential Manager via the `CredentialService`. The `rclone config create` command is then invoked with the `--password-command` flag, which tells Rclone to execute a PowerShell command to retrieve the password from the Credential Manager at runtime. This ensures the password is never exposed in the command line arguments or configuration file.
+
+**Integration with qBittorrent Cleanup Script:**
+The `qb_cleanup_ratio.ps1` script is updated to retrieve the qBittorrent WebUI password directly from the Windows Credential Manager using a PowerShell command that calls the `CredentialManagement` NuGet package. This eliminates the need to pass the password as a command-line argument or store it in `config.json`.
+
+### 2.2.3. UserNotifierService
+The `UserNotifierService` is a new service dedicated to providing clear, user-friendly feedback and error messages to the end-user. It abstracts the complexities of displaying notifications and ensures a consistent messaging experience across the application.
+
+*   **Purpose:** To translate technical errors and system events into actionable messages that guide the user in resolving issues or understanding application status.
+*   **Integration:** This service is utilized by various parts of the application, including the `ConfigurationService` (for validation errors), `ScriptRunnerService` (for script timeouts or failures), and the setup wizards (for connection test results).
+*   **Methods:**
+    *   `ShowSuccess(string message, string title = "Success")`: Displays a success notification.
+    *   `ShowError(string message, string title = "Error")`: Displays an error notification, often accompanied by suggested actions.
+    *   `ShowInformation(string message, string title = "Information")`: Displays general informational messages.
+
+By centralizing notification logic, the `UserNotifierService` ensures that users receive timely and understandable feedback, improving the overall usability and troubleshooting experience.
+
 ### 2.3. Project Structure
 The project will follow the Model-View-ViewModel (MVVM) design pattern to ensure a clean separation of concerns.
 
@@ -149,6 +174,7 @@ The application will map common technical failures to user-friendly messages to 
 | Script timeout | "Job `[Job Name]` timed out." | "The script ran longer than the configured `max_runtime_minutes`. Check the log for details." |
 | `rclone config create` fails | "Failed to create rclone remote." | "Please check your seedbox connection details and try the wizard again." |
 
+
 ## 4. Configuration Management
 
 ### 4.1. `config.json`
@@ -178,7 +204,7 @@ The application manages its configuration through a central `config.json` file l
     "host": "58.nl21.seedit4.me",
     "port": 2102,
     "username": "seedit4me",
-    "auth": { "method": "password", "pass_obscured": "XXXX" }
+    "password_ref": "rclone_seedbox_password"
   },
   "vpn": {
     "config_file": "C:\\Users\\Matt\\Downloads\\seedbox.ovpn",
@@ -250,6 +276,9 @@ This external library is used to implement the system tray icon functionality, a
 
 ### 5.4. `Microsoft.Toolkit.Uwp.Notifications`
 This library is used for displaying native Windows toast notifications, providing clear, non-intrusive feedback to the user about background task completion.
+
+### 5.5. `CredentialManagement`
+This NuGet package provides a .NET wrapper for the Windows Credential Manager API, enabling the secure storage and retrieval of user credentials. It is used by the `CredentialService` to manage sensitive information like passwords outside of the application's configuration files.
 
 ### 5.3. Dependency Management Strategy
 
@@ -376,9 +405,8 @@ graph TD
         *   **UI Control:** `Radio Buttons` with two options: `Password` and `SSH key file`.
         *   **Action:**
             *   If `Password` is selected, a masked `TextBox` will be displayed for password entry. A note will inform the user: "Your password will be safely stored using Rclone’s built-in encryption." The UI will **never** handle the plaintext password directly. When the user proceeds, the application will:
-                1.  Call `rclone obscure` with the provided password via standard input.
-                2.  Capture the obscured result from standard output.
-                3.  Use this obscured result directly in the non-interactive `rclone config create` command.
+                1.  The application will securely store the password using the `CredentialService` in the Windows Credential Manager.
+                2.  A reference to this stored credential will be used in the `config.json` file.
             *   If `SSH key file` is selected, a `TextBox` with a "Browse" button will appear for the private key file path, along with an optional masked `TextBox` for a passphrase.
     5.  **"What name should we give this remote?"**
         *   **UI Control:** `TextBox`
@@ -414,7 +442,7 @@ graph TD
 
 *   **Non-Interactive Command Example:**
     ```batch
-    rclone config create "seedbox" "sftp" "host=58.nl21.seedit4.me" "user=seedit4me" "port=2102" "pass=YOUR_OBSCURED_PASSWORD"
+    rclone config create "seedbox" "sftp" "host=58.nl21.seedit4.me" "user=seedit4me" "port=2102" --password-command="powershell.exe -Command \"& { Add-Type -AssemblyName CredentialManagement; $cred = [CredentialManagement.CredentialManager]::ReadCredential('rclone_seedbox_password'); $cred.Password }\""
     ```
 
 ### 6.2. qB Cleanup Setup Wizard
@@ -543,5 +571,6 @@ The application will deploy the `qb_cleanup_ratio.ps1` script by copying it from
 *   **Connection Details:** It will read `qbittorrent.protocol`, `host`, `port`, and `base_path`.
 *   **Credentials:** It will read `qbittorrent.username` and use the `password_ref` to look up the password from the Windows Credential Manager.
 *   **Policy:** It will read all settings from the `cleanup` object.
+
 
 This ensures that no sensitive information is hardcoded and the script's behavior can be fully controlled via the `config.json` file.

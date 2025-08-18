@@ -14,7 +14,7 @@ To create a reliable, background scheduling service that automatically triggers 
     *   `public void Start(Job job)`: This method will initialize and start a new timer for a specific job (e.g., an rclone pull task). The timer's interval will be dynamically set based on the `schedule.pull_every_minutes` value in `config.json`. The timer's callback delegate will be configured to invoke the `ScriptRunnerService`.
     *   `public void Stop(Job job)`: This method will find the corresponding active timer for the specified job and dispose of it, effectively stopping the schedule for that job.
 *   **Integration:** The `MainViewModel` will be responsible for calling the `Start` and `Stop` methods of the `SchedulingService` when the user enables or disables a job's schedule from the UI. The service will be registered as a singleton in the application's dependency injection container to ensure a single source of truth for all scheduled tasks.
-*   **Catch-Up Logic:** The `SchedulingService` will be updated to detect if the application was asleep when a run was scheduled. If a scheduled run is missed, the service will trigger an immediate "catch-up" run to ensure data synchronization is not delayed.
+*   **Catch-Up Logic:** The `SchedulingService` has been successfully updated to include robust "catch-up" logic. It now detects if the application was asleep or not running during a scheduled interval and triggers immediate execution of missed jobs upon startup or system wake-up, ensuring no scheduled tasks are overlooked.
 
 ## 2. Settings Window (Completed)
 
@@ -58,6 +58,11 @@ To provide clear, non-intrusive feedback to the user when background tasks (like
 *   **Implementation Summary:** The notification system has been successfully implemented using the `Microsoft.Toolkit.Uwp.Notifications` library. The `NotificationService` handles the creation and display of toast notifications, which are triggered by the `ScriptRunnerService` upon completion of background tasks. Notifications provide clear feedback on task status (success/failure) and relevant details, enhancing user awareness.
 
 ## 6. User-Friendly Error Handling (Completed)
+### 6.1. Objective
+To abstract and simplify error reporting, presenting users with clear, actionable messages instead of technical exception details.
+
+### 6.2. Implementation Details
+The User-Friendly Error Handling Service, implemented as `UserNotifierService.cs`, has been successfully integrated. This service now centralizes error reporting, mapping technical failures to clear, actionable messages. It is utilized across the application (e.g., by `ConfigurationService` and `ScriptRunnerService`) to provide consistent and helpful feedback to the user, significantly improving the troubleshooting experience.
 
 ### 6.1. Objective
 To abstract and simplify error reporting, presenting users with clear, actionable messages instead of technical exception details.

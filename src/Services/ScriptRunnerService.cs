@@ -95,32 +95,32 @@ namespace RcloneQBController.Services
             int exitCode = 0;
             bool timedOut = false;
 
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = fileName,
-                    Arguments = arguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-
-            _runningProcesses[jobName] = process;
-
-            process.OutputDataReceived += (sender, args) =>
-            {
-                if (args.Data != null) onOutput(args.Data);
-            };
-            process.ErrorDataReceived += (sender, args) =>
-            {
-                if (args.Data != null) onOutput($"ERROR: {args.Data}");
-            };
-
             try
             {
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = fileName,
+                        Arguments = arguments,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+
+                _runningProcesses[jobName] = process;
+
+                process.OutputDataReceived += (sender, args) =>
+                {
+                    if (args.Data != null) onOutput(args.Data);
+                };
+                process.ErrorDataReceived += (sender, args) =>
+                {
+                    if (args.Data != null) onOutput($"ERROR: {args.Data}");
+                };
+
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
@@ -158,6 +158,11 @@ namespace RcloneQBController.Services
                         finalStatus = $"failed with exit code {exitCode}";
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                UserNotifierService.ShowFriendlyError(ex);
+                finalStatus = "encountered a critical error";
             }
             finally
             {
