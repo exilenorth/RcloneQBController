@@ -2,9 +2,9 @@ using CredentialManagement;
 
 namespace RcloneQBController.Services
 {
-    public static class CredentialService
+    public class CredentialService : ICredentialService
     {
-        public static void SaveCredential(string target, string username, string password)
+        public void SaveCredential(string target, string username, string password)
         {
             using (var cred = new Credential())
             {
@@ -17,20 +17,17 @@ namespace RcloneQBController.Services
             }
         }
 
-        public static Credential? RetrieveCredential(string target)
+        public Credential? RetrieveCredential(string target)
         {
-            using (var cred = new Credential())
+            var cred = new Credential { Target = target };
+            if (cred.Load())
             {
-                cred.Target = target;
-                if (cred.Load())
-                {
-                    return cred;
-                }
+                return cred;
             }
             return null;
         }
 
-        public static void DeleteCredential(string target)
+        public void DeleteCredential(string target)
         {
             using (var cred = new Credential())
             {

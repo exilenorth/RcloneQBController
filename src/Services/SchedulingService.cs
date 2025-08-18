@@ -9,9 +9,9 @@ namespace RcloneQBController.Services
     {
         private readonly ConcurrentDictionary<string, Timer> _timers = new();
         private readonly ConcurrentDictionary<string, DateTime> _lastRunTimes = new();
-        private readonly ScriptRunnerService _scriptRunnerService;
+        private readonly IScriptRunnerService _scriptRunnerService;
 
-        public SchedulingService(ScriptRunnerService scriptRunnerService)
+        public SchedulingService(IScriptRunnerService scriptRunnerService)
         {
             _scriptRunnerService = scriptRunnerService;
         }

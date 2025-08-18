@@ -10,7 +10,11 @@ namespace RcloneQBController.Views
         public SettingsWindow()
         {
             InitializeComponent();
-            var viewModel = new RcloneQBController.ViewModels.SettingsViewModel();
+            var viewModel = new RcloneQBController.ViewModels.SettingsViewModel(
+                new RcloneQBController.Services.ConfigurationService(),
+                new RcloneQBController.Services.CredentialService(),
+                new RcloneQBController.Services.UserNotifierService()
+            );
             DataContext = viewModel;
             viewModel.CloseAction = (result) =>
             {

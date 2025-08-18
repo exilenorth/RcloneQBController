@@ -4,9 +4,9 @@ using System.Windows;
 
 namespace RcloneQBController.Services
 {
-    public static class UserNotifierService
+    public class UserNotifierService : IUserNotifierService
     {
-        public static void ShowFriendlyError(Exception ex)
+        public void ShowFriendlyError(Exception ex)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {

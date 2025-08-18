@@ -22,16 +22,22 @@ namespace RcloneQBController.ViewModels
 
         public Action<bool> CloseAction { get; set; }
 
-        public SettingsViewModel()
+        private readonly IConfigurationService _configurationService;
+        private readonly ICredentialService _credentialService;
+
+        public SettingsViewModel(Services.IConfigurationService configurationService, Services.ICredentialService credentialService, Services.IUserNotifierService userNotifierService)
         {
+            _configurationService = configurationService;
+            _credentialService = credentialService;
+
             // Create a deep copy of the configuration object by serializing and deserializing it.
             // This prevents changes in the settings window from affecting the main application state
             // until the user explicitly saves them.
-            var originalConfig = ConfigurationService.Instance.LoadConfig();
+            var originalConfig = _configurationService.LoadConfig();
             var json = JsonSerializer.Serialize(originalConfig);
             ConfigCopy = JsonSerializer.Deserialize<AppConfig>(json);
 
-            var credential = CredentialService.RetrieveCredential(QBittorrentCredentialTarget);
+            var credential = _credentialService.RetrieveCredential(QBittorrentCredentialTarget);
             if (credential != null)
             {
                 QBittorrentPassword = new SecureString();
@@ -47,8 +53,8 @@ namespace RcloneQBController.ViewModels
 
         private void Save(object obj)
         {
-            CredentialService.SaveCredential(QBittorrentCredentialTarget, ConfigCopy.QBittorrent.Username, SecureStringToString(QBittorrentPassword));
-            ConfigurationService.Instance.SaveConfig(ConfigCopy);
+            _credentialService.SaveCredential(QBittorrentCredentialTarget, ConfigCopy.QBittorrent.Username, SecureStringToString(QBittorrentPassword));
+            _configurationService.SaveConfig(ConfigCopy);
             CloseAction?.Invoke(true);
         }
 

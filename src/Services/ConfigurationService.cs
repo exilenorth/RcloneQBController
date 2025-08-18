@@ -5,23 +5,21 @@ using System.Text.Json;
 
 namespace RcloneQBController.Services
 {
-    public class ConfigurationService
+    public class ConfigurationService : IConfigurationService
     {
-        private static readonly Lazy<ConfigurationService> _instance = new Lazy<ConfigurationService>(() => new ConfigurationService());
         private const string ConfigFileName = "config.json";
 
-        public static ConfigurationService Instance => _instance.Value;
+        public string ConfigFilePath => ConfigFileName;
 
-        private ConfigurationService() { }
-
-        public AppConfig LoadConfig()
+        public AppConfig LoadConfig(string? configPath = null)
         {
-            if (!File.Exists(ConfigFileName))
+            var path = configPath ?? ConfigFilePath;
+            if (!File.Exists(path))
             {
-                throw new FileNotFoundException("Configuration file not found.", ConfigFileName);
+                throw new FileNotFoundException("Configuration file not found.", path);
             }
 
-            var json = File.ReadAllText(ConfigFileName);
+            var json = File.ReadAllText(path);
             var config = JsonSerializer.Deserialize<AppConfig>(json);
             if (config == null)
             {
@@ -31,13 +29,14 @@ namespace RcloneQBController.Services
             return config;
         }
 
-        public void SaveConfig(AppConfig config)
+        public void SaveConfig(AppConfig config, string? configPath = null)
         {
+            var path = configPath ?? ConfigFileName;
             var options = new JsonSerializerOptions { WriteIndented = true };
             var json = JsonSerializer.Serialize(config, options);
-            File.WriteAllText(ConfigFileName, json);
+            File.WriteAllText(path, json);
         }
-        public static bool IsValid(AppConfig config)
+        public bool IsValid(AppConfig config)
         {
             if (config == null) return false;
 

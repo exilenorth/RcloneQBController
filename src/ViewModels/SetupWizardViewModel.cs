@@ -53,7 +53,7 @@ namespace RcloneQBController.ViewModels
             _transferJobViewModel = new TransferJobViewModel();
             _rcloneSummaryViewModel = new RcloneSummaryViewModel();
             _openVPNViewModel = new OpenVPNViewModel();
-            _qbittorrentViewModel = new QbittorrentViewModel(new ScriptRunnerService(), new ActivityDashboardViewModel());
+            _qbittorrentViewModel = new QbittorrentViewModel(new ScriptRunnerService(new UserNotifierService(), new NotificationService()), new ActivityDashboardViewModel());
             _cleanupSummaryViewModel = new CleanupSummaryViewModel();
 
             _steps = new List<object>
@@ -171,8 +171,9 @@ namespace RcloneQBController.ViewModels
                     Schedule = new SchedulerConfig { PullEveryMinutes = 15 }
                 };
 
-                ConfigurationService.Instance.SaveConfig(config);
-                var scriptService = new ScriptGenerationService(ConfigurationService.Instance);
+                var configService = new ConfigurationService();
+                configService.SaveConfig(config);
+                var scriptService = new ScriptGenerationService(configService, new CredentialService());
                 try
                 {
                     scriptService.GenerateScripts(config);

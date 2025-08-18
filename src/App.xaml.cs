@@ -31,7 +31,8 @@ namespace RcloneQBController
                 {
                     var json = File.ReadAllText(configPath);
                     var config = JsonSerializer.Deserialize<Models.AppConfig>(json);
-                    if (config != null && ConfigurationService.IsValid(config))
+                    var configService = new ConfigurationService();
+                    if (config != null && configService.IsValid(config))
                     {
                         useWizard = false;
                     }

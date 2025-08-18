@@ -9,11 +9,19 @@ using System.Text;
 
 namespace RcloneQBController.Services
 {
-    public class ScriptRunnerService
+    public class ScriptRunnerService : IScriptRunnerService
     {
         private static readonly Mutex RcloneMutex = new Mutex(false, "RcloneQBController_Rclone");
         private static readonly Mutex CleanupMutex = new Mutex(false, "RcloneQBController_Cleanup");
         private readonly Dictionary<string, Process> _runningProcesses = new();
+        private readonly IUserNotifierService _userNotifierService;
+        private readonly INotificationService _notificationService;
+
+        public ScriptRunnerService(IUserNotifierService userNotifierService, INotificationService notificationService)
+        {
+            _userNotifierService = userNotifierService;
+            _notificationService = notificationService;
+        }
 
         public async Task RunRcloneJobAsync(RcloneJobConfig job, Action<string> onOutput)
         {
@@ -161,13 +169,13 @@ namespace RcloneQBController.Services
             }
             catch (Exception ex)
             {
-                UserNotifierService.ShowFriendlyError(ex);
+                _userNotifierService.ShowFriendlyError(ex);
                 finalStatus = "encountered a critical error";
             }
             finally
             {
                 _runningProcesses.Remove(jobName);
-                NotificationService.ShowNotification($"Job '{jobName}' Finished", $"The job {finalStatus}.");
+                _notificationService.ShowNotification($"Job '{jobName}' Finished", $"The job {finalStatus}.");
             }
         }
     }

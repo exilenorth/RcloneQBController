@@ -15,7 +15,7 @@ namespace RcloneQBController.ViewModels
         private bool _isDryRunEnabled;
         private bool _isTestingConnection;
         private bool _isRunning;
-        private readonly ScriptRunnerService _scriptRunner;
+        private readonly IScriptRunnerService _scriptRunner;
         private readonly ActivityDashboardViewModel _activityDashboard;
 
         public bool IsTestingConnection
@@ -59,7 +59,7 @@ namespace RcloneQBController.ViewModels
         public ICommand RunCleanupScriptCommand { get; }
         public ICommand StopCleanupScriptCommand { get; }
 
-        public QbittorrentViewModel(ScriptRunnerService scriptRunner, ActivityDashboardViewModel activityDashboard)
+        public QbittorrentViewModel(IScriptRunnerService scriptRunner, ActivityDashboardViewModel activityDashboard)
         {
             _scriptRunner = scriptRunner;
             _activityDashboard = activityDashboard;

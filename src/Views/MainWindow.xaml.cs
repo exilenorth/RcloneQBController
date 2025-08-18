@@ -16,7 +16,14 @@ namespace RcloneQBController.Views
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new RcloneQBController.ViewModels.MainViewModel();
+            DataContext = new RcloneQBController.ViewModels.MainViewModel(
+                new RcloneQBController.Services.ConfigurationService(),
+                new RcloneQBController.Services.CredentialService(),
+                new RcloneQBController.Services.ScriptGenerationService(new RcloneQBController.Services.ConfigurationService(), new RcloneQBController.Services.CredentialService()),
+                new RcloneQBController.Services.ScriptRunnerService(new RcloneQBController.Services.UserNotifierService(), new RcloneQBController.Services.NotificationService()),
+                new RcloneQBController.Services.UserNotifierService(),
+                new RcloneQBController.Services.NotificationService()
+            );
         }
         protected override void OnStateChanged(EventArgs e)
         {

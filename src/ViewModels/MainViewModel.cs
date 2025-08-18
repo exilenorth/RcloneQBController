@@ -21,20 +21,22 @@ namespace RcloneQBController.ViewModels
         public ICommand ExitCommand { get; }
        public ICommand ShowWindowCommand { get; }
 
-       private readonly ScriptRunnerService _scriptRunner;
-        private readonly ConfigurationService _configurationService;
-        private readonly ScriptGenerationService _scriptGenerationService;
+       private readonly IScriptRunnerService _scriptRunner;
+        private readonly IConfigurationService _configurationService;
+        private readonly ICredentialService _credentialService;
+        private readonly IScriptGenerationService _scriptGenerationService;
         private readonly SchedulingService _schedulingService;
         private AppConfig _config = new AppConfig();
 
-        public MainViewModel()
+        public MainViewModel(IConfigurationService configurationService, ICredentialService credentialService, IScriptGenerationService scriptGenerationService, IScriptRunnerService scriptRunnerService, IUserNotifierService userNotifierService, INotificationService notificationService)
         {
-            ActivityDashboard = new ActivityDashboardViewModel();
-            _scriptRunner = new ScriptRunnerService();
+            _configurationService = configurationService;
+            _credentialService = credentialService;
+            _scriptGenerationService = scriptGenerationService;
+            _scriptRunner = scriptRunnerService;
             _schedulingService = new SchedulingService(_scriptRunner);
+            ActivityDashboard = new ActivityDashboardViewModel();
             Qbittorrent = new QbittorrentViewModel(_scriptRunner, ActivityDashboard);
-            _configurationService = ConfigurationService.Instance;
-            _scriptGenerationService = new ScriptGenerationService(_configurationService);
 
             _config = _configurationService.LoadConfig() ?? new AppConfig();
             if (_config != null && _config.Rclone != null && _config.Rclone.Jobs != null)
