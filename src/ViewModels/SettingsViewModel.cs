@@ -10,6 +10,7 @@ namespace RcloneQBController.ViewModels
 {
     public class SettingsViewModel : INotifyPropertyChanged, IDataErrorInfo
     {
+        private const string QBittorrentCredentialTarget = "RcloneQBController_qBittorrent";
         public AppConfig ConfigCopy { get; set; }
         public SecureString QBittorrentPassword { get; set; }
  
@@ -29,14 +30,15 @@ namespace RcloneQBController.ViewModels
             var originalConfig = ConfigurationService.Instance.LoadConfig();
             var json = JsonSerializer.Serialize(originalConfig);
             ConfigCopy = JsonSerializer.Deserialize<AppConfig>(json);
-            if (!string.IsNullOrEmpty(ConfigCopy.QBittorrent.Password))
+
+            var credential = CredentialService.RetrieveCredential(QBittorrentCredentialTarget);
+            if (credential != null)
             {
                 QBittorrentPassword = new SecureString();
-                foreach (char c in ConfigCopy.QBittorrent.Password)
+                foreach (char c in credential.Password)
                 {
                     QBittorrentPassword.AppendChar(c);
                 }
-                ConfigCopy.QBittorrent.Password = null;
             }
  
              SaveCommand = new RelayCommand(Save, CanSave);
@@ -45,7 +47,7 @@ namespace RcloneQBController.ViewModels
 
         private void Save(object obj)
         {
-            ConfigCopy.QBittorrent.Password = SecureStringToString(QBittorrentPassword);
+            CredentialService.SaveCredential(QBittorrentCredentialTarget, ConfigCopy.QBittorrent.Username, SecureStringToString(QBittorrentPassword));
             ConfigurationService.Instance.SaveConfig(ConfigCopy);
             CloseAction?.Invoke(true);
         }

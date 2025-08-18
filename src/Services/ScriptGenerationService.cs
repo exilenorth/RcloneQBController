@@ -110,7 +110,8 @@ namespace RcloneQBController.Services
                     var qbUrl = $"{config.QBittorrent.Protocol}://{config.QBittorrent.Host}:{config.QBittorrent.Port}{config.QBittorrent.BasePath}";
                     qbScriptContent.Replace("%%QB_URL%%", qbUrl);
                     qbScriptContent.Replace("%%QB_USER%%", config.QBittorrent.Username ?? string.Empty);
-                    qbScriptContent.Replace("%%QB_PASS%%", string.Empty); // Placeholder for secure password handling
+                    var credential = CredentialService.RetrieveCredential("RcloneQBController_qBittorrent");
+                    qbScriptContent.Replace("%%QB_PASS%%", credential?.Password ?? string.Empty);
                 }
 
                 if (config.Cleanup != null)
