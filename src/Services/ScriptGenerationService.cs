@@ -28,18 +28,18 @@ namespace RcloneQBController.Services
             if (File.Exists(rcloneTemplatePath))
             {
                 var rcloneTemplate = File.ReadAllText(rcloneTemplatePath);
-                var scriptContent = rcloneTemplate
-                    .Replace("%%RCLONE_EXE_PATH%%", Sanitize(config.Rclone.RclonePath ?? string.Empty))
-                    .Replace("%%SOURCE%%", Sanitize(job.SourcePath ?? string.Empty))
-                    .Replace("%%DEST%%", Sanitize(job.DestPath ?? string.Empty))
-                    .Replace("%%LOG_DIR%%", Sanitize(config.Rclone.LogDir ?? string.Empty))
-                    .Replace("%%FILTER_FILE%%", Sanitize(job.FilterFile ?? string.Empty))
-                    .Replace("%%LOG_LEVEL%%", Sanitize(config.Rclone.LogLevel ?? "INFO"))
-                    .Replace("%%MIN_AGE%%", Sanitize(config.Rclone.Flags?.MinAge ?? string.Empty))
-                    .Replace("%%TRANSFERS%%", config.Rclone.Flags?.Transfers.ToString() ?? "4")
-                    .Replace("%%CHECKERS%%", config.Rclone.Flags?.Checkers.ToString() ?? "8");
+                var scriptContent = new StringBuilder(rcloneTemplate);
+                scriptContent.Replace("%%RCLONE_EXE_PATH%%", Sanitize(config.Rclone.RclonePath ?? string.Empty));
+                scriptContent.Replace("%%SOURCE%%", Sanitize(job.SourcePath ?? string.Empty));
+                scriptContent.Replace("%%DEST%%", Sanitize(job.DestPath ?? string.Empty));
+                scriptContent.Replace("%%LOG_DIR%%", Sanitize(config.Rclone.LogDir ?? string.Empty));
+                scriptContent.Replace("%%FILTER_FILE%%", Sanitize(job.FilterFile ?? string.Empty));
+                scriptContent.Replace("%%LOG_LEVEL%%", Sanitize(config.Rclone.LogLevel ?? "INFO"));
+                scriptContent.Replace("%%MIN_AGE%%", Sanitize(config.Rclone.Flags?.MinAge ?? string.Empty));
+                scriptContent.Replace("%%TRANSFERS%%", config.Rclone.Flags?.Transfers.ToString() ?? "4");
+                scriptContent.Replace("%%CHECKERS%%", config.Rclone.Flags?.Checkers.ToString() ?? "8");
 
-                return scriptContent;
+                return scriptContent.ToString();
             }
 
             throw new FileNotFoundException($"Template file not found at: {rcloneTemplatePath}");
@@ -65,16 +65,16 @@ namespace RcloneQBController.Services
 
                     foreach (var job in config.Rclone.Jobs)
                     {
-                        var scriptContent = rcloneTemplate
-                            .Replace("%%RCLONE_EXE_PATH%%", Sanitize(config.Rclone.RclonePath ?? string.Empty))
-                            .Replace("%%SOURCE%%", Sanitize(job.SourcePath ?? string.Empty))
-                            .Replace("%%DEST%%", Sanitize(job.DestPath ?? string.Empty))
-                            .Replace("%%LOG_DIR%%", Sanitize(config.Rclone.LogDir ?? string.Empty))
-                            .Replace("%%FILTER_FILE%%", Sanitize(job.FilterFile ?? string.Empty))
-                            .Replace("%%LOG_LEVEL%%", Sanitize(config.Rclone.LogLevel ?? "INFO"))
-                            .Replace("%%MIN_AGE%%", Sanitize(config.Rclone.Flags?.MinAge ?? string.Empty))
-                            .Replace("%%TRANSFERS%%", config.Rclone.Flags?.Transfers.ToString() ?? "4")
-                            .Replace("%%CHECKERS%%", config.Rclone.Flags?.Checkers.ToString() ?? "8");
+                        var scriptContent = new StringBuilder(rcloneTemplate);
+                        scriptContent.Replace("%%RCLONE_EXE_PATH%%", Sanitize(config.Rclone.RclonePath ?? string.Empty));
+                        scriptContent.Replace("%%SOURCE%%", Sanitize(job.SourcePath ?? string.Empty));
+                        scriptContent.Replace("%%DEST%%", Sanitize(job.DestPath ?? string.Empty));
+                        scriptContent.Replace("%%LOG_DIR%%", Sanitize(config.Rclone.LogDir ?? string.Empty));
+                        scriptContent.Replace("%%FILTER_FILE%%", Sanitize(job.FilterFile ?? string.Empty));
+                        scriptContent.Replace("%%LOG_LEVEL%%", Sanitize(config.Rclone.LogLevel ?? "INFO"));
+                        scriptContent.Replace("%%MIN_AGE%%", Sanitize(config.Rclone.Flags?.MinAge ?? string.Empty));
+                        scriptContent.Replace("%%TRANSFERS%%", config.Rclone.Flags?.Transfers.ToString() ?? "4");
+                        scriptContent.Replace("%%CHECKERS%%", config.Rclone.Flags?.Checkers.ToString() ?? "8");
 
                         var sanitizedJobName = "default_job";
                         if (!string.IsNullOrEmpty(job.Name))
@@ -84,11 +84,12 @@ namespace RcloneQBController.Services
                         var outputFileName = $"rclone_pull_{sanitizedJobName}.bat";
                         var outputPath = Path.Combine(outputDirectory, outputFileName);
 
-                        scriptContent = scriptContent.Replace("rclone_pull.lock", $"rclone_pull_{sanitizedJobName}.lock");
+                        scriptContent.Replace("rclone_pull.lock", $"rclone_pull_{sanitizedJobName}.lock");
 
-                        if (scriptContent.Contains("%%"))
+                        var finalScript = scriptContent.ToString();
+                        if (finalScript.Contains("%%"))
                             throw new System.InvalidOperationException("Template has unresolved placeholders.");
-                        File.WriteAllText(outputPath, scriptContent);
+                        File.WriteAllText(outputPath, finalScript);
                     }
                 }
                 else
@@ -102,8 +103,32 @@ namespace RcloneQBController.Services
             if (File.Exists(qbTemplatePath))
             {
                 var qbTemplate = File.ReadAllText(qbTemplatePath);
+                var qbScriptContent = new StringBuilder(qbTemplate);
+
+                if (config.QBittorrent != null)
+                {
+                    var qbUrl = $"{config.QBittorrent.Protocol}://{config.QBittorrent.Host}:{config.QBittorrent.Port}{config.QBittorrent.BasePath}";
+                    qbScriptContent.Replace("%%QB_URL%%", qbUrl);
+                    qbScriptContent.Replace("%%QB_USER%%", config.QBittorrent.Username ?? string.Empty);
+                    qbScriptContent.Replace("%%QB_PASS%%", string.Empty); // Placeholder for secure password handling
+                }
+
+                if (config.Cleanup != null)
+                {
+                    qbScriptContent.Replace("%%LOG_DIR%%", config.Cleanup.LogDir ?? string.Empty);
+                    qbScriptContent.Replace("%%TARGET_RATIO%%", config.Cleanup.TargetRatio.ToString());
+                    qbScriptContent.Replace("%%HNR_MINUTES%%", config.Cleanup.HnrMinutes.ToString());
+                    qbScriptContent.Replace("%%MIN_AGE_MINS%%", config.Cleanup.MinAgeMinutes.ToString());
+
+                    var categories = string.Join(", ", config.Cleanup.Categories?.Select(c => $"'{c}'") ?? Enumerable.Empty<string>());
+                    qbScriptContent.Replace("%%CATEGORIES%%", categories);
+
+                    var safeStates = string.Join(", ", config.Cleanup.SafeStates?.Select(s => $"'{s}'") ?? Enumerable.Empty<string>());
+                    qbScriptContent.Replace("%%SAFE_STATES%%", safeStates);
+                }
+
                 var qbOutputPath = Path.Combine(outputDirectory, "qb_cleanup_ratio.ps1");
-                File.WriteAllText(qbOutputPath, qbTemplate);
+                File.WriteAllText(qbOutputPath, qbScriptContent.ToString());
             }
             else
             {

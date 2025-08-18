@@ -13,6 +13,17 @@ param (
     [switch]$DryRun
 )
 
+# ===================== Configuration (Injected by App) =====================
+$QbUrl = "%%QB_URL%%"
+$QbUser = "%%QB_USER%%"
+$QbPass = "%%QB_PASS%%"
+$LogDir = "%%LOG_DIR%%"
+$Categories = @(%%CATEGORIES%%)
+$TargetRatio = %%TARGET_RATIO%%
+$HnRMinutes = %%HNR_MINUTES%%
+$MinAgeMins = %%MIN_AGE_MINS%%
+$SafeStates = @(%%SAFE_STATES%%)
+
 # ===================== Function Definitions =====================
 
 function Log([string]$msg) {
@@ -25,17 +36,21 @@ function Log([string]$msg) {
 function New-qBSession {
     param(
         [Parameter(Mandatory=$true)]
-        [PSCustomObject]$Config
+        [string]$QbUrl,
+        [Parameter(Mandatory=$true)]
+        [string]$QbUser,
+        [Parameter(Mandatory=$true)]
+        [string]$QbPass
     )
     try {
-        Log "Attempting to log into qBittorrent at $($Config.QbUrl)..."
+        Log "Attempting to log into qBittorrent at $QbUrl..."
         $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
         $body = @{
-            username = $Config.QbUser
-            password = $Config.QbPass
+            username = $QbUser
+            password = $QbPass
         }
-        $r = Invoke-WebRequest -Method POST -Uri "$($Config.QbUrl)/api/v2/auth/login" -WebSession $session `
-            -Headers @{ Referer = $Config.QbUrl } -Body $body -ErrorAction Stop
+        $r = Invoke-WebRequest -Method POST -Uri "$QbUrl/api/v2/auth/login" -WebSession $session `
+            -Headers @{ Referer = $QbUrl } -Body $body -ErrorAction Stop
         
         if ($r.StatusCode -ne 200 -or $r.Content -notmatch "Ok") {
             throw "Login failed. Status: $($r.StatusCode). Response: $($r.Content)"
@@ -43,19 +58,19 @@ function New-qBSession {
         Log "Successfully logged into qBittorrent."
         return $session
     } catch {
-        throw "Failed to establish qB session. Error: $($_.Exception.Message). Please check URL and credentials in config.json."
+        throw "Failed to establish qB session. Error: $($_.Exception.Message). Please check URL and credentials."
     }
 }
 
 function Get-qBTorrents {
     param(
         [Parameter(Mandatory=$true)]
-        [PSCustomObject]$Config,
+        [string]$QbUrl,
         [Parameter(Mandatory=$true)]
         $Session
     )
     try {
-        $uri = "$($Config.QbUrl)/api/v2/torrents/info"
+        $uri = "$QbUrl/api/v2/torrents/info"
         return Invoke-RestMethod -Method GET -Uri $uri -WebSession $Session -ErrorAction Stop
     } catch {
         throw "Failed to fetch torrents from API. Error: $($_.Exception.Message). Check if qBittorrent is reachable."
@@ -97,7 +112,7 @@ function Get-EligibleTorrents {
 function Remove-qBTorrents {
     param(
         [Parameter(Mandatory=$true)]
-        [PSCustomObject]$Config,
+        [string]$QbUrl,
         [Parameter(Mandatory=$true)]
         $Session,
         [Parameter(Mandatory=$true)]
@@ -117,7 +132,7 @@ function Remove-qBTorrents {
             hashes = $hashes
             deleteFiles = 'true'
         }
-        $deleteResult = Invoke-WebRequest -Method POST -Uri "$($Config.QbUrl)/api/v2/torrents/delete" `
+        $deleteResult = Invoke-WebRequest -Method POST -Uri "$QbUrl/api/v2/torrents/delete" `
             -WebSession $Session -Body $body -ErrorAction Stop
 
         if ($deleteResult.StatusCode -ne 200) {
@@ -131,19 +146,8 @@ function Remove-qBTorrents {
 
 # --- Main Execution ---
 try {
-    # --- Load Configuration ---
-    $PSScriptRoot = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
-    $ConfigFile = Join-Path $PSScriptRoot "config.json"
-
-    if (-not (Test-Path $ConfigFile)) {
-        throw "Configuration file not found at '$ConfigFile'. Please create it."
-    }
-    # Use -ErrorAction Stop to ensure failure jumps to the catch block
-    $Config = Get-Content -Raw -Path $ConfigFile -ErrorAction Stop | ConvertFrom-Json
-    
     # --- Initialize Logging ---
     $RunDate = Get-Date -Format "yyyy-MM-dd"
-    $LogDir = $Config.LogDir
     if (-not (Test-Path $LogDir)) { New-Item -ItemType Directory -Force -Path $LogDir | Out-Null }
     
     # Set the script-scoped variable for the Log function
@@ -151,10 +155,9 @@ try {
     $DeleteCsv = Join-Path $LogDir ("qb_cleanup_deleted_{0}.csv" -f $RunDate)
 
     # --- Script Parameters ---
-    $hnrSec = [int]$Config.HnRMinutes * 60
-    $minAgeSec = [int]$Config.MinAgeMins * 60
+    $hnrSec = [int]$HnRMinutes * 60
+    $minAgeSec = [int]$MinAgeMins * 60
     $now = [int][double]::Parse((Get-Date -UFormat %s))
-    $SafeStates = @('pausedUP', 'pausedDL', 'stalledUP', 'error', 'missingFiles')
 
     # --- Begin Processing ---
     if ($DryRun) {
@@ -164,12 +167,12 @@ try {
     }
 
     # 1. Connect and get a session
-    $session = New-qBSession -Config $Config
+    $session = New-qBSession -QbUrl $QbUrl -QbUser $QbUser -QbPass $QbPass
     
     # 2. Get all torrents and filter them
-    $allTorrents = Get-qBTorrents -Config $Config -Session $session
+    $allTorrents = Get-qBTorrents -QbUrl $QbUrl -Session $session
     if ($null -eq $allTorrents) { $allTorrents = @() } # Ensure it's an array
-    $targetTorrents = $allTorrents | Where-Object { $_.category -in $Config.Categories }
+    $targetTorrents = $allTorrents | Where-Object { $_.category -in $Categories }
     Log ("Found {0} torrents in specified categories." -f $targetTorrents.Count)
 
     if ($targetTorrents.Count -eq 0) {
@@ -178,7 +181,7 @@ try {
     }
 
     # 3. Identify eligible torrents for deletion
-    $eligibleTorrents = Get-EligibleTorrents -Torrents $targetTorrents -Now $now -MinAgeSec $minAgeSec -SafeStates $SafeStates -TargetRatio $Config.TargetRatio -HnrSec $hnrSec
+    $eligibleTorrents = Get-EligibleTorrents -Torrents $targetTorrents -Now $now -MinAgeSec $minAgeSec -SafeStates $SafeStates -TargetRatio $TargetRatio -HnrSec $hnrSec
     
     if ($eligibleTorrents.Count -eq 0) {
         Log "Nothing to clean."
@@ -210,14 +213,14 @@ try {
     $deletionLog | Export-Csv -Path $DeleteCsv -NoTypeInformation
 
     # 5. Delete the torrents (or simulate if DryRun)
-    Remove-qBTorrents -Config $Config -Session $session -Torrents $eligibleTorrents -DryRun:$DryRun
+    Remove-qBTorrents -QbUrl $QbUrl -Session $session -Torrents $eligibleTorrents -DryRun:$DryRun
 
     # 6. Verify deletion and update log if not a dry run
     if (-not $DryRun.IsPresent) {
         Log "Verifying deletions..."
         # Allow a moment for qB to process the deletions
         Start-Sleep -Seconds 5
-        $torrentsAfterDelete = Get-qBTorrents -Config $Config -Session $session
+        $torrentsAfterDelete = Get-qBTorrents -QbUrl $QbUrl -Session $session
         if ($null -eq $torrentsAfterDelete) { $torrentsAfterDelete = @() } # Ensure it's an array
         $hashesAfterDelete = $torrentsAfterDelete | Select-Object -ExpandProperty hash
 
