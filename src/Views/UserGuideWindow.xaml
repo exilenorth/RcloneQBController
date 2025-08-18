@@ -5,25 +5,47 @@
         Background="#2D2D30" Foreground="#F1F1F1">
     <ScrollViewer Margin="15">
         <TextBlock TextWrapping="Wrap">
-            <Run FontSize="18" FontWeight="Bold">Welcome to the Rclone QB Controller!</Run>
+            <Run FontSize="18" FontWeight="Bold">Welcome to Rclone QB Controller!</Run>
             <LineBreak/><LineBreak/>
-            This application helps you automate two main tasks: downloading files from your seedbox with Rclone and cleaning up old torrents from qBittorrent based on seeding rules.
+            <Run>Hello! This application is designed to make your life easier by automating two key tasks:</Run>
             <LineBreak/><LineBreak/>
-            <Run FontWeight="Bold">How to Use This App:</Run>
+            <Run>- Downloading completed files from your seedbox to your computer using a powerful tool called Rclone.</Run>
             <LineBreak/>
-            <Run>- The left panel shows your Rclone transfer jobs and the qBittorrent cleanup task.</Run>
-            <LineBreak/>
-            <Run>- Click "Run Now" to start a job manually.</Run>
-            <LineBreak/>
-            <Run>- Use the toggle switch to enable or disable the automatic schedule for a job.</Run>
-            <LineBreak/>
-            <Run>- The right panel (Activity Dashboard) shows a live log of what the scripts are doing.</Run>
+            <Run>- Cleaning up torrents from qBittorrent after they have finished seeding, so you don't have to do it manually.</Run>
             <LineBreak/><LineBreak/>
-            <Run FontWeight="Bold">What is a 'Dry Run'?</Run>
-            <LineBreak/>
-            The "Dry Run" checkbox for the cleanup script lets you see what files *would* be deleted without actually deleting anything. It's a safe way to test your cleanup rules.
+            <Run>This guide will walk you through the main features of the application.</Run>
             <LineBreak/><LineBreak/>
-            <Run>You can change all settings, including paths, schedules, and cleanup rules, by going to File -> Settings.</Run>
+            <Run FontWeight="Bold">The Main Window</Run>
+            <LineBreak/>
+            <Run>The application is split into two main sections:</Run>
+            <LineBreak/><LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Control Panel (Left Side):</Run><Run> This is where you can see all your available tasks and control them.</Run>
+            <LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Activity Dashboard (Right Side):</Run><Run> This is a live feed that shows you exactly what the application is doing at any moment. When a download is in progress, you'll see a list of files being transferred right here.</Run>
+            <LineBreak/><LineBreak/>
+            <Run FontWeight="Bold">Rclone Jobs (Your Downloads)</Run>
+            <LineBreak/>
+            <Run>This section lists all the download tasks you have set up, like "TV Shows" or "Movies". For each job, you have a few options:</Run>
+            <LineBreak/><LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Run Now:</Run><Run> Click this button to start the download immediately. While a job is running, this button will change to a Stop button, which you can use to cancel the task.</Run>
+            <LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Preview:</Run><Run> If you want to see the technical command that will be run without actually starting it, you can click this button.</Run>
+            <LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Schedule Toggle (the switch on the right):</Run><Run> If you want a job to run automatically in the background, just flip this switch on. The application will then run it for you at the interval defined in the settings. Flip it off to disable the schedule for that specific job.</Run>
+            <LineBreak/><LineBreak/>
+            <Run FontWeight="Bold">qBittorrent Tasks (Cleaning Up)</Run>
+            <LineBreak/>
+            <Run>This section is for managing the cleanup of old torrents in qBittorrent.</Run>
+            <LineBreak/><LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Run Cleanup Script:</Run><Run> Click this to start the cleanup process based on the rules you've set (like the seed ratio).</Run>
+            <LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Dry Run:</Run><Run> This is a very useful safety feature. If you check the Dry Run box before clicking the button, the script will run in a simulation mode. It will show you a log of all the torrents it would have deleted, but it won't actually delete anything. This is a great way to test your rules and make sure they are working as you expect.</Run>
+            <LineBreak/><LineBreak/>
+            <Run FontWeight="Bold">Settings and Help</Run>
+            <LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Changing Settings:</Run><Run> You can change all the application's settings, including the schedule intervals, your qBittorrent connection details, and the cleanup rules, by going to the File -> Settings menu at the top of the window.</Run>
+            <LineBreak/>
+            <Run>- </Run><Run FontWeight="Bold">Troubleshooting:</Run><Run> If something isn't working as expected, the log files are the best place to look for answers. You can easily open the folder containing all the log files by going to the Help -> Open Log Folder menu.</Run>
         </TextBlock>
     </ScrollViewer>
 </Window>
