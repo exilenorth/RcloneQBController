@@ -37,6 +37,28 @@ namespace RcloneQBController.Services
             var json = JsonSerializer.Serialize(config, options);
             File.WriteAllText(ConfigFileName, json);
         }
+        public static bool IsValid(AppConfig config)
+        {
+            if (config == null) return false;
+
+            // Rclone validation
+            if (config.Rclone == null ||
+                string.IsNullOrWhiteSpace(config.Rclone.RclonePath) ||
+                string.IsNullOrWhiteSpace(config.Rclone.RemoteName))
+            {
+                return false;
+            }
+
+            // QBittorrent validation
+            if (config.QBittorrent == null ||
+                string.IsNullOrWhiteSpace(config.QBittorrent.Host) ||
+                config.QBittorrent.Port <= 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         public void ValidateConfiguration(AppConfig config)
         {

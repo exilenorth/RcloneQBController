@@ -1,5 +1,8 @@
+using RcloneQBController.Services;
 using RcloneQBController.Views;
+using System;
 using System.IO;
+using System.Text.Json;
 using System.Windows;
 
 namespace RcloneQBController
@@ -13,26 +16,51 @@ namespace RcloneQBController
         {
             base.OnStartup(e);
 
-            var configPath = Path.Combine(System.AppContext.BaseDirectory, "config.json");
-            if (!File.Exists(configPath))
+            DispatcherUnhandledException += (sender, args) =>
             {
-                                var wizard = new SetupWizardWindow();
-                                wizard.DataContext = new RcloneQBController.ViewModels.SetupWizardViewModel();
-                                if (wizard.ShowDialog() == true)
-                                {
-                                    var mainWindow = new MainWindow();
-                                    mainWindow.Show();
-                                }
-                                else
-                                {
-                                    Shutdown();
-                                }
-                            }
-                            else
-                            {
-                                var mainWindow = new MainWindow();
-                                mainWindow.Show();
-                            }
+                MessageBox.Show(args.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+            };
+
+            var configPath = Path.Combine(AppContext.BaseDirectory, "config.json");
+            bool useWizard = true;
+
+            if (File.Exists(configPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(configPath);
+                    var config = JsonSerializer.Deserialize<Models.AppConfig>(json);
+                    if (config != null && ConfigurationService.IsValid(config))
+                    {
+                        useWizard = false;
+                    }
+                }
+                catch
+                {
+                    // Let useWizard remain true
+                }
+            }
+
+            if (useWizard)
+            {
+                var wizard = new SetupWizardWindow();
+                wizard.DataContext = new RcloneQBController.ViewModels.SetupWizardViewModel();
+                if (wizard.ShowDialog() == true)
+                {
+                    Current.MainWindow = new MainWindow();
+                    Current.MainWindow.Show();
+                }
+                else
+                {
+                    Shutdown();
+                }
+            }
+            else
+            {
+                Current.MainWindow = new MainWindow();
+                Current.MainWindow.Show();
+            }
         }
     }
 }
