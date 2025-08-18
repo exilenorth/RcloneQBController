@@ -16,6 +16,15 @@ namespace RcloneQBController.ViewModels
         private readonly List<object> _steps;
         private int _currentStepIndex;
 
+        private readonly WelcomeViewModel _welcomeViewModel;
+        private readonly RcloneInstallViewModel _rcloneInstallViewModel;
+        private readonly SeedboxConnectionViewModel _seedboxConnectionViewModel;
+        private readonly TransferJobViewModel _transferJobViewModel;
+        private readonly RcloneSummaryViewModel _rcloneSummaryViewModel;
+        private readonly OpenVPNViewModel _openVPNViewModel;
+        private readonly QbittorrentViewModel _qbittorrentViewModel;
+        private readonly CleanupSummaryViewModel _cleanupSummaryViewModel;
+
         public object CurrentStepViewModel
         {
             get => _currentStepViewModel!;
@@ -38,16 +47,25 @@ namespace RcloneQBController.ViewModels
 
         public SetupWizardViewModel()
         {
+            _welcomeViewModel = new WelcomeViewModel();
+            _rcloneInstallViewModel = new RcloneInstallViewModel();
+            _seedboxConnectionViewModel = new SeedboxConnectionViewModel();
+            _transferJobViewModel = new TransferJobViewModel();
+            _rcloneSummaryViewModel = new RcloneSummaryViewModel();
+            _openVPNViewModel = new OpenVPNViewModel();
+            _qbittorrentViewModel = new QbittorrentViewModel(new ScriptRunnerService(), new ActivityDashboardViewModel());
+            _cleanupSummaryViewModel = new CleanupSummaryViewModel();
+
             _steps = new List<object>
             {
-                new WelcomeViewModel(),
-                new RcloneInstallViewModel(),
-                new SeedboxConnectionViewModel(),
-                new TransferJobViewModel(),
-                new RcloneSummaryViewModel(),
-                new OpenVPNViewModel(),
-                new QbittorrentViewModel(new ScriptRunnerService(), new ActivityDashboardViewModel()),
-                new CleanupSummaryViewModel()
+                _welcomeViewModel,
+                _rcloneInstallViewModel,
+                _seedboxConnectionViewModel,
+                _transferJobViewModel,
+                _rcloneSummaryViewModel,
+                _openVPNViewModel,
+                _qbittorrentViewModel,
+                _cleanupSummaryViewModel
             };
 
             _currentStepIndex = 0;

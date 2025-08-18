@@ -7,6 +7,7 @@ namespace RcloneQBController.Models
     public class RcloneJobConfig : INotifyPropertyChanged
     {
         private bool _isRunning;
+        private bool _isScheduled;
 
         [JsonPropertyName("name")]
         public string? Name { get; set; }
@@ -20,7 +21,18 @@ namespace RcloneQBController.Models
         [JsonPropertyName("max_runtime_minutes")]
         public int MaxRuntimeMinutes { get; set; }
 
-        public bool IsScheduled { get; set; }
+        public bool IsScheduled
+        {
+            get => _isScheduled;
+            set
+            {
+                if (_isScheduled != value)
+                {
+                    _isScheduled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         [JsonIgnore]
         public bool IsRunning

@@ -67,16 +67,4 @@ namespace RcloneQBController.Models
                 [JsonPropertyName("transferring")]
                 public RcloneTransferringFile[]? Transferring { get; set; }
             }
-        
-            public class RcloneTransferringFile
-            {
-                [JsonPropertyName("bytes")]
-                public long Bytes { get; set; }
-        
-                [JsonPropertyName("name")]
-                public string Name { get; set; } = string.Empty;
-        
-                [JsonPropertyName("size")]
-                public long Size { get; set; }
-            }
         }

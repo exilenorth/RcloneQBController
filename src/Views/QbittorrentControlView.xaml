@@ -6,22 +6,26 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <StackPanel Orientation="Horizontal">
-                        <Button Margin="5">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Content" Value="Run Cleanup Script" />
-                                    <Setter Property="Command" Value="{Binding RunCleanupScriptCommand}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                            <Setter Property="Content" Value="Stop" />
-                                            <Setter Property="Command" Value="{Binding StopCleanupScriptCommand}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-            <CheckBox Content="Dry Run" IsChecked="{Binding IsDryRun}" VerticalAlignment="Center" Margin="5"/>
-        </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Margin="5">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Content" Value="Run Cleanup Script" />
+                        <Setter Property="Command" Value="{Binding RunCleanupScriptCommand}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                <Setter Property="Content" Value="Stop" />
+                                <Setter Property="Command" Value="{Binding StopCleanupScriptCommand}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <CheckBox Grid.Column="1" Content="Dry Run" IsChecked="{Binding IsDryRun}" VerticalAlignment="Center" Margin="5"/>
+        </Grid>
     </Grid>
 </UserControl>
