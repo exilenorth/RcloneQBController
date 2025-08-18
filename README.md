@@ -6,7 +6,8 @@ A GUI application for managing and scheduling the `qb_cleanup_ratio.ps1` and `rc
 ## Core Features
 *   Script Control & Scheduling
 *   Graphical Activity Dashboard
-*   In-App Settings Editor
+*   Centralized Settings Management via UI
+*   **Settings Window:** A dedicated user interface for comprehensive application configuration, eliminating the need for manual `config.json` edits.
 *   User Guide
 *   Log Folder Shortcut
 *   VPN Status Indicator & Pre-Run Check
@@ -21,8 +22,8 @@ The RcloneQBController is built with:
 *   **Framework:** .NET 9
 *   **UI:** Windows Presentation Foundation (WPF)
 
-## Configuration (`config.json`)
-The application relies on a central `config.json` file for all its settings. The definitive structure is as follows:
+## Configuration
+All application settings are now managed through the dedicated **Settings Window** within the UI, providing a user-friendly interface for configuration. While a `config.json` file still exists, it is primarily managed by the application and manual edits are generally not required. The structure of the underlying configuration is as follows:
 
 ```json
 {

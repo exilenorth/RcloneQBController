@@ -8,7 +8,7 @@ The RcloneQBController is a Windows Presentation Foundation (WPF) desktop applic
 ### 1.2. Goals & Objectives
 *   **Automate Script Execution:** Provide a reliable scheduling mechanism to run the scripts at user-defined intervals.
 *   **Provide a User-Friendly GUI:** Offer an intuitive interface to control script execution, manage settings, and view real-time output.
-*   **Centralize Configuration:** Manage all script and application settings from a single `config.json` file.
+*   **Centralize Configuration:** Provide a comprehensive UI for managing all script and application settings, reducing the need for manual `config.json` edits.
 *   **Enhance Monitoring:** Display real-time console output and provide clear status indicators for scripts and VPN connectivity.
 *   **Ensure Robustness:** Implement configuration validation and dependency checks to prevent common errors.
 
@@ -121,7 +121,7 @@ The application will map common technical failures to user-friendly messages to 
 ## 4. Configuration Management
 
 ### 4.1. `config.json`
-The application will rely on a central `config.json` file located in the application's root directory. The definitive structure is as follows:
+The application manages its configuration through a central `config.json` file located in the application's root directory. While this file stores all settings, users are encouraged to manage these settings via the dedicated **Settings Window** in the UI. The definitive structure of this file is as follows:
 
 ```json
 {

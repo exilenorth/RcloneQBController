@@ -2,7 +2,7 @@
 
 This document outlines the technical implementation plan for the final phase of the RcloneQBController project. This phase focuses on implementing advanced features, including job scheduling, a comprehensive settings interface, system tray integration, and user notifications, to deliver a polished and feature-complete application.
 
-## 1. Scheduling Service
+## 1. Scheduling Service (Completed)
 
 ### 1.1. Objective
 To create a reliable, background scheduling service that automatically triggers rclone and qBittorrent jobs based on user-defined intervals.
@@ -16,22 +16,15 @@ To create a reliable, background scheduling service that automatically triggers 
 *   **Integration:** The `MainViewModel` will be responsible for calling the `Start` and `Stop` methods of the `SchedulingService` when the user enables or disables a job's schedule from the UI. The service will be registered as a singleton in the application's dependency injection container to ensure a single source of truth for all scheduled tasks.
 *   **Catch-Up Logic:** The `SchedulingService` will be updated to detect if the application was asleep when a run was scheduled. If a scheduled run is missed, the service will trigger an immediate "catch-up" run to ensure data synchronization is not delayed.
 
-## 2. Settings Window
+## 2. Settings Window (Completed)
 
 ### 2.1. Objective
 To build a comprehensive, user-friendly settings window that allows users to view and modify all aspects of the application's configuration.
 
-### 2.2. Implementation Details
-*   **File Creation:**
-    *   A new view, `SettingsWindow.xaml`, will be created in the `/Views` directory.
-    *   A corresponding view model, `SettingsViewModel.cs`, will be created in the `/ViewModels` directory.
-*   **UI Structure:** The `SettingsWindow.xaml` will implement a `TabControl` as specified in the design document, with tabs for "qBittorrent," "Rclone," "Scheduling," and "Application." This organizes the settings into logical, manageable sections.
-*   **ViewModel Logic (`SettingsViewModel.cs`):**
-    *   **Loading:** Upon initialization, the ViewModel will use the `ConfigurationService` to load the current `AppConfig` object. The properties of this object will be bound to the various input controls (TextBoxes, CheckBoxes, etc.) in the `SettingsWindow.xaml`.
-    *   **Saving:** A "Save" button in the window will be bound to an `ICommand` in the ViewModel. When invoked, this command will call the `ConfigurationService.SaveConfiguration()` method, passing the current state of the ViewModel's properties to persist the changes to `config.json`.
-    *   **Validation:** The ViewModel will include data validation rules (e.g., for numeric inputs or required fields) to provide immediate feedback to the user.
+### 2.2. Implementation Summary
+The Settings Window has been successfully implemented, providing a centralized and intuitive user interface for managing all application configurations. This includes dedicated tabs for qBittorrent, Rclone, Scheduling, and Application settings, ensuring a logical organization of configurable parameters. The `SettingsWindow.xaml` and `SettingsViewModel.cs` were created as planned, with the ViewModel handling the loading, saving, and validation of configuration data via the `ConfigurationService`. This feature significantly enhances user experience by eliminating the need for manual `config.json` edits and providing immediate feedback through integrated validation.
 
-## 3. User Guide & Menu Items
+## 3. User Guide & Menu Items (Completed)
 
 ### 3.1. Objective
 To provide users with easy access to help documentation and essential application functions through a standard menu bar.
@@ -44,7 +37,7 @@ To provide users with easy access to help documentation and essential applicatio
     *   **"User Guide":** This will open a new instance of the `UserGuideWindow`.
     *   **"Open Log Folder":** This will use the `Process.Start()` method to open the log directory specified in `config.json` in the default file explorer, providing quick access for troubleshooting.
 
-## 4. System Tray Integration
+## 4. System Tray Integration (Completed)
 
 ### 4.1. Objective
 To allow the application to run unobtrusively in the background and be managed from the system tray.
@@ -57,7 +50,7 @@ To allow the application to run unobtrusively in the background and be managed f
     *   **"Exit":** Shuts down the application completely.
 *   **Minimize-to-Tray Logic:** The `OnClosing` event of the `MainWindow` will be overridden. Instead of allowing the window to close, the event will be handled (`e.Cancel = true`), and the window's visibility will be set to `Hidden`. This action will minimize the application to the tray instead of terminating it. The "Exit" option in the context menu will be the primary method for closing the application.
 
-## 5. Notifications
+## 5. Notifications (Completed)
 
 ### 5.1. Objective
 To provide clear, non-intrusive feedback to the user when background tasks (like a script run) are completed.
@@ -67,7 +60,7 @@ To provide clear, non-intrusive feedback to the user when background tasks (like
 *   **Integration:** The `ScriptRunnerService` will be updated. After a script process completes, the service will invoke a method that builds and displays a toast notification.
 *   **Notification Content:** The notification will clearly state which script has finished and whether it succeeded or failed, providing at-a-glance status information to the user even when the application window is not visible.
 
-## 6. User-Friendly Error Handling
+## 6. User-Friendly Error Handling (Completed)
 
 ### 6.1. Objective
 To abstract and simplify error reporting, presenting users with clear, actionable messages instead of technical exception details.
