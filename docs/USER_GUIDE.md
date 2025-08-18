@@ -39,6 +39,15 @@ To interact with the application when it's in the system tray, right-click the R
 *   **Show:** Click this option to restore the main application window from the system tray.
 *   **Exit:** Select this option to completely close the application and stop all background processes.
 
+## Notifications
+The Rclone QB Controller provides toast notifications to keep you informed about the status of your background tasks.
+
+*   **When Notifications Appear:** You will see a small pop-up notification in the corner of your screen when a script or job finishes, whether it completes successfully or encounters an error.
+*   **Information Provided:** These notifications will typically include:
+    *   The name of the completed task (e.g., "Rclone TV Job", "qBittorrent Cleanup").
+    *   The outcome of the task (e.g., "Completed Successfully", "Failed").
+    *   A brief summary or relevant details about the task's execution.
+
 ## Settings and Help
 *   **Changing Settings:** You can change all the application's settings, including the schedule intervals, your qBittorrent connection details, and the cleanup rules, by going to the File -> Settings menu at the top of the window.
 *   **Troubleshooting:** If something isn't working as expected, the log files are the best place to look for answers. You can easily open the folder containing all the log files by going to the Help -> Open Log Folder menu.

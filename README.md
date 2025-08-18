@@ -8,6 +8,7 @@ A GUI application for managing and scheduling the `qb_cleanup_ratio.ps1` and `rc
 *   Graphical Activity Dashboard
 *   Centralized Settings Management via UI (now accessible via the new menu bar)
 *   **System Tray Integration:** The application can be minimized to the system tray, continuing to run in the background and providing quick access via a context menu.
+*   **Toast Notifications:** Users will receive pop-up notifications when background jobs (like Rclone transfers or qBittorrent cleanup scripts) are completed.
 *   **Settings Window:** A dedicated user interface for comprehensive application configuration, eliminating the need for manual `config.json` edits.
 *   **User Guide:** Access comprehensive help documentation directly from the menu bar.
 *   **Open Log Folder:** Quickly open the application's log directory via a menu bar shortcut.

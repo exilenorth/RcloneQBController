@@ -26,6 +26,7 @@ The RcloneQBController is a Windows Presentation Foundation (WPF) desktop applic
 *   **ConfigurationService:** A singleton service responsible for loading, parsing, validating, and saving the `config.json` file.
 *   **ScriptRunnerService:** Manages the execution of the `rclone` and `qBittorrent` scripts in separate processes. It will be responsible for starting, stopping, and monitoring these processes.
 *   **SchedulingService:** Handles the automated execution of scripts based on the schedule defined in the configuration. It will use the `ScriptRunnerService` to perform the execution.
+*   **NotificationService:** A dedicated service responsible for generating and displaying toast notifications to the user. It integrates with the `ScriptRunnerService` to provide real-time feedback on the completion status of background tasks.
 *   **SetupWizardViewModel:** The data context for the `SetupWizardWindow`. It manages the overall state and flow of the setup wizards, with each step being represented by its own ViewModel.
 
 ### 2.2.1. System Tray Implementation Details
@@ -246,6 +247,9 @@ The `qb_cleanup_ratio.ps1` script's functionality is dependent on an active Open
 
 ### 5.3. `Hardcodet.NotifyIcon.Wpf`
 This external library is used to implement the system tray icon functionality, allowing the application to run in the background and be managed from the Windows system tray.
+
+### 5.4. `Microsoft.Toolkit.Uwp.Notifications`
+This library is used for displaying native Windows toast notifications, providing clear, non-intrusive feedback to the user about background task completion.
 
 ### 5.3. Dependency Management Strategy
 

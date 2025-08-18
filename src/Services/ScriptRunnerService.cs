@@ -91,6 +91,10 @@ namespace RcloneQBController.Services
 
         private async Task ExecuteProcessAsync(string jobName, string fileName, string arguments, Action<string> onOutput, int timeoutMinutes)
         {
+            string finalStatus = "completed successfully";
+            int exitCode = 0;
+            bool timedOut = false;
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -136,6 +140,8 @@ namespace RcloneQBController.Services
                                 process.Kill();
                             }
                             onOutput($"ERROR: Process timed out after {timeoutMinutes} minutes and was terminated.");
+                            finalStatus = "timed out";
+                            timedOut = true;
                         }
                     }
                 }
@@ -143,10 +149,20 @@ namespace RcloneQBController.Services
                 {
                     await process.WaitForExitAsync();
                 }
+
+                if (!timedOut)
+                {
+                    exitCode = process.ExitCode;
+                    if (exitCode != 0)
+                    {
+                        finalStatus = $"failed with exit code {exitCode}";
+                    }
+                }
             }
             finally
             {
                 _runningProcesses.Remove(jobName);
+                NotificationService.ShowNotification($"Job '{jobName}' Finished", $"The job {finalStatus}.");
             }
         }
     }
